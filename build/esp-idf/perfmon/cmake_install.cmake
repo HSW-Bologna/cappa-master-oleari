@@ -1,4 +1,4 @@
-# Install script for directory: /home/xgampx/Desktop/UNI/TIROCINIO/esp-idf/components/perfmon
+# Install script for directory: /home/maldus/Source/esp-idf-v4.4.2/components/perfmon
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,6 +34,6 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/home/xgampx/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32s2-elf/bin/xtensa-esp32s2-elf-objdump")
+  set(CMAKE_OBJDUMP "/home/maldus/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32s2-elf/bin/xtensa-esp32s2-elf-objdump")
 endif()
 

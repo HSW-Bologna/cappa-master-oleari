@@ -18532,6 +18532,236 @@
                     {
                         "children": [],
                         "depends_on": null,
+                        "help": "Enables debugging utilities",
+                        "id": "LIGHTMODBUS_DEBUG",
+                        "name": "LIGHTMODBUS_DEBUG",
+                        "range": null,
+                        "title": "Debug utilities",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F01S",
+                                "name": "LIGHTMODBUS_F01S",
+                                "range": null,
+                                "title": "Slave function code 1",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F02S",
+                                "name": "LIGHTMODBUS_F02S",
+                                "range": null,
+                                "title": "Slave function code 2",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F03S",
+                                "name": "LIGHTMODBUS_F03S",
+                                "range": null,
+                                "title": "Slave function code 3",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F04S",
+                                "name": "LIGHTMODBUS_F04S",
+                                "range": null,
+                                "title": "Slave function code 4",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F05S",
+                                "name": "LIGHTMODBUS_F05S",
+                                "range": null,
+                                "title": "Slave function code 5",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F06S",
+                                "name": "LIGHTMODBUS_F06S",
+                                "range": null,
+                                "title": "Slave function code 6",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F15S",
+                                "name": "LIGHTMODBUS_F15S",
+                                "range": null,
+                                "title": "Slave function code 15",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F16S",
+                                "name": "LIGHTMODBUS_F16S",
+                                "range": null,
+                                "title": "Slave function code 16",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_SLAVE",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F22S",
+                                "name": "LIGHTMODBUS_F22S",
+                                "range": null,
+                                "title": "Slave function code 22",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "Enables the slave module",
+                        "id": "LIGHTMODBUS_SLAVE",
+                        "name": "LIGHTMODBUS_SLAVE",
+                        "range": null,
+                        "title": "Slave module",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": "This allows master to skip request CRC check for better performance",
+                                "id": "LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC",
+                                "name": "LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC",
+                                "range": null,
+                                "title": "Master omit resquest CRC check",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F01M",
+                                "name": "LIGHTMODBUS_F01M",
+                                "range": null,
+                                "title": "Master function code 1",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F02M",
+                                "name": "LIGHTMODBUS_F02M",
+                                "range": null,
+                                "title": "Master function code 2",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F03M",
+                                "name": "LIGHTMODBUS_F03M",
+                                "range": null,
+                                "title": "Master function code 3",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F04M",
+                                "name": "LIGHTMODBUS_F04M",
+                                "range": null,
+                                "title": "Master function code 4",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F05M",
+                                "name": "LIGHTMODBUS_F05M",
+                                "range": null,
+                                "title": "Master function code 5",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F06M",
+                                "name": "LIGHTMODBUS_F06M",
+                                "range": null,
+                                "title": "Master function code 6",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F15M",
+                                "name": "LIGHTMODBUS_F15M",
+                                "range": null,
+                                "title": "Master function code 15",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F16M",
+                                "name": "LIGHTMODBUS_F16M",
+                                "range": null,
+                                "title": "Master function code 16",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LIGHTMODBUS_MASTER",
+                                "help": null,
+                                "id": "LIGHTMODBUS_F22M",
+                                "name": "LIGHTMODBUS_F22M",
+                                "range": null,
+                                "title": "Master function code 22",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "This enables the master module",
+                        "id": "LIGHTMODBUS_MASTER",
+                        "name": "LIGHTMODBUS_MASTER",
+                        "range": null,
+                        "title": "Master module",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-liblightmodbus",
+                "title": "liblightmodbus",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": null,
                         "help": null,
                         "id": "LV_CONF_SKIP",
                         "name": "LV_CONF_SKIP",
@@ -22248,6 +22478,16 @@
                                 "type": "bool"
                             },
                             {
+                                "children": [],
+                                "depends_on": null,
+                                "help": "Use a statically allocated buffer for the TFT driver transfer operations",
+                                "id": "TFT_DRIVER_STATIC_BUFFER",
+                                "name": "TFT_DRIVER_STATIC_BUFFER",
+                                "range": null,
+                                "title": "Use a statically allocated buffer for the TFT driver transfers",
+                                "type": "bool"
+                            },
+                            {
                                 "children": [
                                     {
                                         "children": [],
@@ -23863,6 +24103,27 @@
                             {
                                 "children": [
                                     {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "LV_FT6X36_ENABLE_IRQ && LV_TOUCH_CONTROLLER_FT6X06",
+                                                "help": null,
+                                                "id": "LV_FT6X36_IRQ_IO",
+                                                "name": "LV_FT6X36_IRQ_IO",
+                                                "range": null,
+                                                "title": "FT6X36 IRQ signal IO",
+                                                "type": "int"
+                                            }
+                                        ],
+                                        "depends_on": "LV_TOUCH_CONTROLLER_FT6X06",
+                                        "help": null,
+                                        "id": "LV_FT6X36_ENABLE_IRQ",
+                                        "name": "LV_FT6X36_ENABLE_IRQ",
+                                        "range": null,
+                                        "title": "Enable FT6X36 IRQ signal",
+                                        "type": "bool"
+                                    },
+                                    {
                                         "children": [],
                                         "depends_on": "LV_TOUCH_CONTROLLER_FT6X06",
                                         "help": null,
@@ -24290,6 +24551,48 @@
                             },
                             {
                                 "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "LV_GT911_ENABLE_RESET && LV_TOUCH_CONTROLLER_GT911",
+                                                "help": null,
+                                                "id": "LV_GT911_RESET_IO",
+                                                "name": "LV_GT911_RESET_IO",
+                                                "range": null,
+                                                "title": "GT911 IRQ reset IO",
+                                                "type": "int"
+                                            }
+                                        ],
+                                        "depends_on": "LV_TOUCH_CONTROLLER_GT911",
+                                        "help": null,
+                                        "id": "LV_GT911_ENABLE_RESET",
+                                        "name": "LV_GT911_ENABLE_RESET",
+                                        "range": null,
+                                        "title": "Enable GT911 reset control",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "LV_GT911_ENABLE_IRQ && LV_TOUCH_CONTROLLER_GT911",
+                                                "help": null,
+                                                "id": "LV_GT911_IRQ_IO",
+                                                "name": "LV_GT911_IRQ_IO",
+                                                "range": null,
+                                                "title": "GT911 IRQ signal IO",
+                                                "type": "int"
+                                            }
+                                        ],
+                                        "depends_on": "LV_TOUCH_CONTROLLER_GT911",
+                                        "help": null,
+                                        "id": "LV_GT911_ENABLE_IRQ",
+                                        "name": "LV_GT911_ENABLE_IRQ",
+                                        "range": null,
+                                        "title": "Enable GT911 IRQ signal",
+                                        "type": "bool"
+                                    },
                                     {
                                         "children": [],
                                         "depends_on": "LV_TOUCH_CONTROLLER_GT911",

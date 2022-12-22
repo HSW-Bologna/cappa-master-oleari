@@ -1,4 +1,4 @@
-# Install script for directory: /home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/components/lvgl
+# Install script for directory: /home/maldus/Projects/HSW/demo-cappa-master/components/lvgl
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,6 +34,6 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/home/xgampx/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32s2-elf/bin/xtensa-esp32s2-elf-objdump")
+  set(CMAKE_OBJDUMP "/home/maldus/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32s2-elf/bin/xtensa-esp32s2-elf-objdump")
 endif()
 

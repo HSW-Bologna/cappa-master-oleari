@@ -42,13 +42,19 @@ typedef enum {
 
 typedef enum {
     VIEW_CONTROLLER_MESSAGE_CODE_NOTHING = 0,
+    VIEW_CONTROLLER_MESSAGE_CODE_SET_FAN_SPEED,
 } view_controller_message_code_t;
 
 
 typedef struct {
     view_controller_message_code_t code;
 
-    union {};
+    union {
+        struct {
+            uint16_t fan;
+            uint16_t speed;
+        };
+    };
 } view_controller_message_t;
 
 

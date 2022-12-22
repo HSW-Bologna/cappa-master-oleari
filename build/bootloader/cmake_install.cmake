@@ -1,4 +1,4 @@
-# Install script for directory: /home/xgampx/Desktop/UNI/TIROCINIO/esp-idf/components/bootloader/subproject
+# Install script for directory: /home/maldus/Source/esp-idf-v4.4.2/components/bootloader/subproject
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,12 +34,12 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/home/xgampx/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32s2-elf/bin/xtensa-esp32s2-elf-objdump")
+  set(CMAKE_OBJDUMP "/home/maldus/.espressif/tools/xtensa-esp32s2-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32s2-elf/bin/xtensa-esp32s2-elf-objdump")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader/esp-idf/cmake_install.cmake")
+  include("/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

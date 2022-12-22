@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/CMakeFiles/bootloader"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/CMakeFiles/bootloader.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "/home/maldus/Projects/HSW/demo-cappa-master/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		}
 	],
 	"target" : 

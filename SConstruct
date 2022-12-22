@@ -24,6 +24,7 @@ MAIN = "main"
 ASSETS = "assets"
 SIMULATOR = "simulator"
 COMPONENTS = "components"
+LIBLIGHTMODBUS = f"{COMPONENTS}/liblightmodbus-esp"
 FREERTOS = f"{SIMULATOR}/freertos-simulator"
 CJSON = f"{SIMULATOR}/cJSON"
 B64 = f"{SIMULATOR}/b64"
@@ -44,6 +45,7 @@ CFLAGS = [
     "-DLV_HOR_RES_MAX=480",
     "-DLV_VER_RES_MAX=320",
     '-DprojCOVERAGE_TEST=1',
+    "-DLIGHTMODBUS_MASTER_FULL",
     '-DGEL_PARAMETER_CONFIGURATION_HEADER="\\"gel_parameter_conf.h\\""',
     '-DGEL_PAGEMANAGER_CONFIGURATION_HEADER="\\"gel_pman_conf.h\\""',
     "-Wno-unused-parameter",
@@ -54,7 +56,7 @@ LDLIBS = ["-lSDL2", "-lpthread", "-lm"]
 
 CPPPATH = [
     COMPONENTS, f'#{SIMULATOR}/port', f'#{MAIN}',
-    f"#{MAIN}/config", f"#{SIMULATOR}", B64, CJSON, f"#{LVGL}", f"#{DRIVERS}",
+    f"#{MAIN}/config", f"#{SIMULATOR}", B64, CJSON, f"#{LVGL}", f"#{DRIVERS}", f"{LIBLIGHTMODBUS}/repo/include",
 ]
 
 TRANSLATIONS = [
@@ -121,6 +123,7 @@ def main():
                 for filename in Path(f'{LVGL}/src').rglob('*.c')]
     sources += [File(filename) for filename in Path(DRIVERS).rglob('*.c')]
     sources += [File(f'{CJSON}/cJSON.c')]
+    sources += [File(f"{LIBLIGHTMODBUS}/src/impl.c")]
     sources += [File(f'{B64}/encode.c'),
                 File(f'{B64}/decode.c'), File(f'{B64}/buffer.c')]
 

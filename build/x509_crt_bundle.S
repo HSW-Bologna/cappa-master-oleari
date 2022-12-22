@@ -1,4 +1,4 @@
-/* * Data converted from /home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /home/maldus/Projects/HSW/demo-cappa-master/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded
