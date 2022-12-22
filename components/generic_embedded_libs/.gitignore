@@ -1,0 +1,8 @@
+.sconsign.dblite
+*.a
+*.o
+.vscode
+*_Runner.c
+*_test
+gel_conf.h
+build

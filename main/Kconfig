@@ -1,0 +1,50 @@
+menu "Echo RS485 Example Configuration"
+
+    config ECHO_UART_PORT_NUM
+        int "1" 
+        range 0 2 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3
+        default 2 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3
+        range 0 1 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32C2 || IDF_TARGET_ESP32H4
+        default 1 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32C2 || IDF_TARGET_ESP32H4
+        help
+            UART communication port number for the example.
+            See UART documentation for available port numbers.
+
+    config ECHO_UART_BAUD_RATE
+        int "1300"
+        range 1200 115200
+        default 115200
+        help
+            UART communication speed for Modbus example.
+
+    config ECHO_UART_RXD
+        int "42"
+        range 1 73 
+        default 22 if IDF_TARGET_ESP32
+        default 8 if !IDF_TARGET_ESP32
+        help
+            GPIO number for UART RX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config ECHO_UART_TXD
+        int "41"
+        range 1 73 
+        default 23 if IDF_TARGET_ESP32
+        default 9 if !IDF_TARGET_ESP32
+        help
+            GPIO number for UART TX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config ECHO_UART_RTS
+        int "40"
+        range 1 73 
+        default 18 if IDF_TARGET_ESP32
+        default 10 if !IDF_TARGET_ESP32
+        help
+            GPIO number for UART RTS pin. This pin is connected to
+            ~RE/DE pin of RS485 transceiver to switch direction.
+            See UART documentation for more information about available pin
+            numbers for UART.
+
+endmenu
+

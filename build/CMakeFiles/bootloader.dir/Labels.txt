@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/CMakeFiles/bootloader
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/CMakeFiles/bootloader.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/CMakeFiles/bootloader-complete.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/xgampx/Desktop/UNI/TIROCINIO/kprogetto/kmaster/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
