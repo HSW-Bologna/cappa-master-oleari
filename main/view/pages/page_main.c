@@ -22,10 +22,12 @@ enum {
 struct page_data {
     lv_obj_t *btn_fans[NUM_FANS];
     lv_obj_t *btn_enable_fan;
+    lv_obj_t *lbl_speed;
     lv_obj_t *arc_speed;
     lv_anim_t anim_fans[NUM_FANS];
 
-    size_t fan_index;
+    uint8_t anim_state[NUM_FANS];
+    size_t  fan_index;
 };
 
 
@@ -57,6 +59,9 @@ static uint16_t  anim_period_from_speed(uint16_t speed);
 static void *create_page(model_t *pmodel, void *extra) {
     struct page_data *pdata = malloc(sizeof(struct page_data));
     pdata->fan_index        = 1;
+    pdata->anim_state[0]    = 0;
+    pdata->anim_state[1]    = 0;
+    pdata->anim_state[2]    = 0;
     return pdata;
 }
 
@@ -86,6 +91,7 @@ static void open_page(model_t *pmodel, void *args) {
 
     lv_obj_t *arc = lv_arc_create(cont);
     lv_obj_set_size(arc, 250, 250);
+    lv_arc_set_range(arc, 0, 100 / 5);
     lv_arc_set_rotation(arc, 135);
     lv_arc_set_bg_angles(arc, 0, 270);
     lv_obj_align(arc, LV_ALIGN_CENTER, 0, 0);
@@ -96,6 +102,10 @@ static void open_page(model_t *pmodel, void *args) {
     lv_obj_set_style_opa(arc, LV_OPA_60, LV_PART_KNOB | LV_STATE_DISABLED);
     lv_obj_set_style_opa(arc, LV_OPA_60, LV_PART_INDICATOR | LV_STATE_DISABLED);
     pdata->arc_speed = arc;
+
+    pdata->lbl_speed = lv_label_create(arc);
+    lv_obj_set_style_text_font(pdata->lbl_speed, &lv_font_montserrat_48, LV_STATE_DEFAULT);
+    lv_obj_align(pdata->lbl_speed, LV_ALIGN_CENTER, 0, 0);
 
     pdata->btn_enable_fan = fan_enable_button_create(cont);
     lv_obj_align_to(pdata->btn_enable_fan, arc, LV_ALIGN_BOTTOM_MID, 0, 16);
@@ -129,11 +139,15 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                             if (pmodel->run.fan_on[pdata->fan_index] && pmodel->run.fan_speeds[pdata->fan_index] > 0) {
                                 uint16_t period = anim_period_from_speed(pmodel->run.fan_speeds[pdata->fan_index]);
                                 lv_anim_set_time(&pdata->anim_fans[pdata->fan_index], period);
-                                lv_anim_start(&pdata->anim_fans[pdata->fan_index]);
+                                if (pdata->anim_state[pdata->fan_index] == 0) {
+                                    lv_anim_start(&pdata->anim_fans[pdata->fan_index]);
+                                    pdata->anim_state[pdata->fan_index] = 1;
+                                }
 
                                 msg.cmsg.speed = pmodel->run.fan_speeds[pdata->fan_index];
                             } else {
                                 lv_anim_custom_del(&pdata->anim_fans[pdata->fan_index], NULL);
+                                pdata->anim_state[pdata->fan_index] = 0;
 
                                 msg.cmsg.speed = 0;
                             }
@@ -141,7 +155,7 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                             break;
 
                         case FAN_SPEED_ARC_ID:
-                            pmodel->run.fan_speeds[pdata->fan_index] = lv_arc_get_value(pdata->arc_speed);
+                            pmodel->run.fan_speeds[pdata->fan_index] = lv_arc_get_value(pdata->arc_speed) * 5;
                             update_page(pmodel, pdata);
 
                             msg.cmsg.code = VIEW_CONTROLLER_MESSAGE_CODE_SET_FAN_SPEED;
@@ -150,11 +164,15 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                             if (pmodel->run.fan_on[pdata->fan_index] && pmodel->run.fan_speeds[pdata->fan_index] > 0) {
                                 uint16_t period = anim_period_from_speed(pmodel->run.fan_speeds[pdata->fan_index]);
                                 lv_anim_set_time(&pdata->anim_fans[pdata->fan_index], period);
-                                lv_anim_start(&pdata->anim_fans[pdata->fan_index]);
+                                if (pdata->anim_state[pdata->fan_index] == 0) {
+                                    lv_anim_start(&pdata->anim_fans[pdata->fan_index]);
+                                    pdata->anim_state[pdata->fan_index] = 1;
+                                }
 
                                 msg.cmsg.speed = pmodel->run.fan_speeds[pdata->fan_index];
                             } else {
                                 lv_anim_custom_del(&pdata->anim_fans[pdata->fan_index], NULL);
+                                pdata->anim_state[pdata->fan_index] = 0;
 
                                 msg.cmsg.speed = 0;
                             }
@@ -164,6 +182,13 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                 }
 
                 case LV_EVENT_RELEASED: {
+                    switch (event.data.id) {
+                        case FAN_SPEED_ARC_ID:
+                            if (pdata->anim_state[pdata->fan_index] == 1) {
+                                lv_anim_start(&pdata->anim_fans[pdata->fan_index]);
+                            }
+                            break;
+                    }
                     break;
                 }
 
@@ -186,7 +211,8 @@ static void update_page(model_t *pmodel, struct page_data *pdata) {
         view_common_set_checked(pdata->btn_fans[i], i == pdata->fan_index);
     }
 
-    lv_arc_set_value(pdata->arc_speed, pmodel->run.fan_speeds[pdata->fan_index]);
+    lv_label_set_text_fmt(pdata->lbl_speed, "%2i%%", pmodel->run.fan_speeds[pdata->fan_index]);
+    lv_arc_set_value(pdata->arc_speed, pmodel->run.fan_speeds[pdata->fan_index] / 5);
     view_common_set_checked(pdata->btn_enable_fan, pmodel->run.fan_on[pdata->fan_index]);
     view_common_set_disabled(pdata->arc_speed, !pmodel->run.fan_on[pdata->fan_index]);
     lv_label_set_text(lv_obj_get_child(pdata->btn_enable_fan, 0), pmodel->run.fan_on[pdata->fan_index] ? "ON" : "OFF");
@@ -244,8 +270,10 @@ static lv_anim_t fan_animation(lv_obj_t *img, uint32_t period) {
 
 
 static uint16_t anim_period_from_speed(uint16_t speed) {
+    const uint16_t periods[] = {1600, 1500, 1300, 1100, 1000, 950, 900, 850, 800, 750, 700,
+                                660,  620,  580,  540,  490,  450, 410, 370, 330, 300};
     if (speed > 0) {
-        return 50000 / speed;
+        return periods[speed / 5];
     } else {
         return 10000;
     }

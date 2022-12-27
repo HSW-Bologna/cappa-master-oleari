@@ -17,6 +17,7 @@
 #include "nvs_flash.h"
 #include "peripherals/phase_cut.h"
 #include "peripherals/rs485.h"
+#include "peripherals/buzzer.h"
 #include "rom/gpio.h"
 #include "sdkconfig.h"
 #include "view/view.h"
@@ -68,6 +69,7 @@ static void echo_send(const int port, const char *str, uint8_t length) {
 void app_main(void) {
     model_t model;
 
+    buzzer_init();
     rs485_init();
     lvgl_i2c_init(I2C_NUM_0);
     lvgl_driver_init();
@@ -81,6 +83,6 @@ void app_main(void) {
         controller_gui_manage(&model);
         controller_manage(&model);
 
-        vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
