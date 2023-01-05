@@ -37,12 +37,16 @@ typedef enum {
     VIEW_EVENT_CODE_LVGL = 0,
     VIEW_EVENT_CODE_TIMER,
     VIEW_EVENT_CODE_OPEN,
+    VIEW_EVENT_CODE_UPDATE,
 } view_event_code_t;
 
 
 typedef enum {
     VIEW_CONTROLLER_MESSAGE_CODE_NOTHING = 0,
     VIEW_CONTROLLER_MESSAGE_CODE_SET_FAN_SPEED,
+    VIEW_CONTROLLER_MESSAGE_CODE_SET_LIGHT,
+    VIEW_CONTROLLER_MESSAGE_CODE_START_OTA,
+    VIEW_CONTROLLER_MESSAGE_CODE_RESET,
 } view_controller_message_code_t;
 
 
@@ -53,6 +57,10 @@ typedef struct {
         struct {
             uint16_t fan;
             uint16_t speed;
+        };
+        struct {
+            uint16_t light;
+            uint8_t  value;
         };
     };
 } view_controller_message_t;

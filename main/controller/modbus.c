@@ -12,20 +12,33 @@
 #define MODBUS_MESSAGE_QUEUE_SIZE        32
 #define MODBUS_TIMEOUT                   25
 #define MODBUS_MAX_PACKET_SIZE           256
-#define MODBUS_COMMUNICATION_ATTEMPTS    3
+#define MODBUS_COMMUNICATION_ATTEMPTS    5
 
-#define MINION_ADDR 1
+#define HOLDING_REGISTER_FAN   0
+#define HOLDING_REGISTER_LIGHT 2
+
+#define MINION_1_ADDR 1
+#define MINION_2_ADDR 2
 
 
 typedef enum {
     TASK_MESSAGE_TAG_SET_SPEED,
+    TASK_MESSAGE_TAG_SET_LIGHT,
 } task_message_tag_t;
 
 
 struct __attribute__((packed)) task_message {
     task_message_tag_t tag;
-    uint16_t           fan;
-    uint16_t           speed;
+    union {
+        struct {
+            uint16_t fan;
+            uint16_t speed;
+        };
+        struct {
+            uint16_t light;
+            uint8_t  value;
+        };
+    };
 };
 
 
@@ -62,6 +75,12 @@ void modbus_set_speed(uint16_t fan, uint16_t speed) {
 }
 
 
+void modbus_set_light(uint16_t light, uint8_t value) {
+    struct task_message msg = {.tag = TASK_MESSAGE_TAG_SET_LIGHT, .light = light, .value = value};
+    xQueueSend(messageq, &msg, portMAX_DELAY);
+}
+
+
 uint8_t modbus_get_response(modbus_response_t *response) {
     return xQueueReceive(responseq, response, 0);
 }
@@ -90,16 +109,39 @@ static void modbus_task(void *args) {
                 case TASK_MESSAGE_TAG_SET_SPEED: {
                     modbus_response_t response = MODBUS_RESPONSE_OK;
                     uint16_t          values[] = {message.speed};
+
                     ESP_LOGI(TAG, "Setting fan speed for %i to %i", message.fan, message.speed);
-                    if (write_holding_registers(&master, MINION_ADDR, message.fan, values, 1)) {
+
+                    uint8_t  address = 0;
+                    uint16_t fan     = 0;
+
+                    if (message.fan < 2) {
+                        address = MINION_1_ADDR;
+                        fan     = message.fan;
+                    } else {
+                        address = MINION_2_ADDR;
+                        fan     = (message.fan) % 2;
+                    }
+
+                    if (write_holding_registers(&master, address, HOLDING_REGISTER_FAN + fan, values, 1)) {
                         response = MODBUS_RESPONSE_ERROR;
                     }
                     xQueueSend(responseq, &response, portMAX_DELAY);
                     break;
                 }
 
-                default:
+                case TASK_MESSAGE_TAG_SET_LIGHT: {
+                    modbus_response_t response = MODBUS_RESPONSE_OK;
+                    uint16_t          values[] = {message.value};
+
+                    uint8_t address = MINION_2_ADDR;
+
+                    if (write_holding_registers(&master, address, HOLDING_REGISTER_LIGHT + message.light, values, 1)) {
+                        response = MODBUS_RESPONSE_ERROR;
+                    }
+                    xQueueSend(responseq, &response, portMAX_DELAY);
                     break;
+                }
             }
             vTaskDelay(pdMS_TO_TICKS(MODBUS_TIMEOUT / 2));
         }

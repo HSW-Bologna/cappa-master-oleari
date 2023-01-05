@@ -8,8 +8,9 @@ typedef enum {
 } modbus_response_t;
 
 
-void modbus_init(void);
-void modbus_set_speed(uint16_t fan, uint16_t speed);
+void    modbus_init(void);
+void    modbus_set_speed(uint16_t fan, uint16_t speed);
+void    modbus_set_light(uint16_t light, uint8_t value);
 uint8_t modbus_get_response(modbus_response_t *response);
 
 

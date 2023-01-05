@@ -80,6 +80,11 @@ void view_wait_release(void) {
 }
 
 
+int view_current_page_id(void) {
+    return pman.current_page.id;
+}
+
+
 pman_view_t view_change_page_extra(model_t *pmodel, const pman_page_t *page, void *extra) {
     event_queue_init(&q);     // Butta tutti gli eventi precedenti quando cambi la pagina
     view_event((view_event_t){.code = VIEW_EVENT_CODE_OPEN});

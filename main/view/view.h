@@ -7,6 +7,9 @@
 #include "gel/pagemanager/page_manager.h"
 
 
+#define PAGE_ID_FIRMWARE_UPDATE 1
+
+
 void view_init(model_t *pmodel,
                void (*flush_cb)(struct _lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p),
                void (*read_cb)(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data));
@@ -28,9 +31,11 @@ lv_timer_t *view_register_periodic_timer(size_t period, int code);
 void        view_register_object_default_callback_with_number(lv_obj_t *obj, int id, int number);
 void        view_register_object_default_callback(lv_obj_t *obj, int id);
 void        view_event(view_event_t event);
+int         view_current_page_id(void);
 
 
-extern const pman_page_t page_main;
+extern const pman_page_t page_main, page_splash, page_password, page_settings, page_minimum_speed, page_immission_speed,
+    page_firmware_update;
 
 
 #endif
