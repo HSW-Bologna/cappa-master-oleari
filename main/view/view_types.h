@@ -45,7 +45,10 @@ typedef enum {
     VIEW_CONTROLLER_MESSAGE_CODE_NOTHING = 0,
     VIEW_CONTROLLER_MESSAGE_CODE_SET_FAN_SPEED,
     VIEW_CONTROLLER_MESSAGE_CODE_SET_LIGHT,
+    VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSION,
+    VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSIONS,
     VIEW_CONTROLLER_MESSAGE_CODE_START_OTA,
+    VIEW_CONTROLLER_MESSAGE_CODE_START_MINION_OTA,
     VIEW_CONTROLLER_MESSAGE_CODE_RESET,
 } view_controller_message_code_t;
 
@@ -62,6 +65,7 @@ typedef struct {
             uint16_t light;
             uint8_t  value;
         };
+        uint16_t device;
     };
 } view_controller_message_t;
 

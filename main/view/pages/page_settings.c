@@ -55,12 +55,6 @@ static void open_page(model_t *pmodel, void *args) {
     view_register_object_default_callback(btn, OTA_BTN_ID);
 
 
-    lv_obj_t *lbl = lv_label_create(cont);
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_16, LV_STATE_DEFAULT);
-    lv_label_set_text_fmt(lbl, "v%i.%i.%i", APP_CONFIG_FIRMWARE_VERSION_MAJOR, APP_CONFIG_FIRMWARE_VERSION_MINOR,
-                          APP_CONFIG_FIRMWARE_VERSION_PATCH);
-    lv_obj_align(lbl, LV_ALIGN_TOP_MID, 0, -8);
-
     update_page(pmodel, pdata);
 }
 
@@ -82,16 +76,17 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
 
                         case MIN_SPEED_BTN_ID:
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
-                            msg.vmsg.page = &page_minimum_speed;
+                            msg.vmsg.page = (void *)&page_minimum_speed;
                             break;
 
                         case IMMISSION_SPEED_BTN_ID:
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
-                            msg.vmsg.page = &page_immission_speed;
+                            msg.vmsg.page = (void *)&page_immission_speed;
                             break;
 
                         case OTA_BTN_ID:
-                            msg.cmsg.code = VIEW_CONTROLLER_MESSAGE_CODE_START_OTA;
+                            msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
+                            msg.vmsg.page = (void *)&page_firmware_management;
                             break;
                     }
                     break;

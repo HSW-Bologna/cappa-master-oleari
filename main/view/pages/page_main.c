@@ -12,6 +12,7 @@
 
 LV_IMG_DECLARE(img_ventola);
 LV_IMG_DECLARE(img_luce);
+LV_IMG_DECLARE(img_luce_sm);
 LV_IMG_DECLARE(img_settings);
 LV_IMG_DECLARE(img_connection);
 
@@ -281,6 +282,7 @@ static void update_page(model_t *pmodel, struct page_data *pdata) {
 
     for (size_t i = 0; i < NUM_FANS; i++) {
         view_common_set_checked(pdata->btn_fans[i], i == pdata->fan_index);
+        view_common_set_hidden(lv_obj_get_child(pdata->btn_fans[i], 1), !model_get_light_on(pmodel, i));
     }
     view_common_set_checked(pdata->btn_enable_light, model_get_light_on(pmodel, pdata->fan_index));
     if (model_get_light_on(pmodel, pdata->fan_index)) {
@@ -325,6 +327,12 @@ static lv_obj_t *fan_button_create(lv_obj_t *root, const char *text) {
     lv_obj_t *img = lv_img_create(btn);
     lv_img_set_src(img, &img_ventola);
     lv_obj_align(img, LV_ALIGN_CENTER, 0, -8);
+
+    img = lv_img_create(btn);
+    lv_obj_set_style_img_recolor_opa(img, LV_OPA_COVER, LV_STATE_DEFAULT);
+    lv_obj_set_style_img_recolor(img, lv_color_make(0xa1, 0xa1, 0x1d), LV_STATE_DEFAULT);
+    lv_img_set_src(img, &img_luce_sm);
+    lv_obj_align(img, LV_ALIGN_TOP_LEFT, 0, 0);
 
     lv_obj_t *lbl = lv_label_create(btn);
     lv_obj_set_style_text_font(lbl, &lv_font_montserrat_16, LV_STATE_DEFAULT);

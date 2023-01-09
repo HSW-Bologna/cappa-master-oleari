@@ -71,6 +71,7 @@ lv_obj_t *view_common_toast_with_parent(const char *msg, lv_obj_t *parent) {
     lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
     lv_label_set_text(lbl, msg);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_24, LV_STATE_DEFAULT);
     lv_obj_align(lbl, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_width(lbl, 380);
 

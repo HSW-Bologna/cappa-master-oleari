@@ -62,22 +62,28 @@ typedef struct {
         uint8_t  communication_error;
 
         firmware_update_state_t firmware_update_state;
+
+        char minion_firmware_version[2][32];
     } run;
 } model_t;
 
 
 void model_init(model_t *pmodel);
 
-uint16_t model_get_language(model_t *pmodel);
-uint16_t model_get_fan_speed(model_t *pmodel, size_t fan);
-void     model_set_fan_speed(model_t *pmodel, size_t fan, uint16_t speed);
-uint8_t  model_get_light_on(model_t *pmodel, size_t fan);
-void     model_toggle_light_on(model_t *pmodel, size_t fan);
-uint8_t  model_get_fan_on(model_t *pmodel, size_t fan);
-void     model_toggle_fan_on(model_t *pmodel, size_t fan);
-uint16_t model_get_immission_percentage(model_t *pmodel, size_t fan);
-void     model_modify_immission_percentage(model_t *pmodel, size_t fan, int16_t mod);
-uint16_t model_get_required_immission(model_t *pmodel);
+uint16_t    model_get_language(model_t *pmodel);
+uint16_t    model_get_fan_speed(model_t *pmodel, size_t fan);
+void        model_set_fan_speed(model_t *pmodel, size_t fan, uint16_t speed);
+uint8_t     model_get_light_on(model_t *pmodel, size_t fan);
+void        model_toggle_light_on(model_t *pmodel, size_t fan);
+uint8_t     model_get_fan_on(model_t *pmodel, size_t fan);
+void        model_toggle_fan_on(model_t *pmodel, size_t fan);
+uint16_t    model_get_immission_percentage(model_t *pmodel, size_t fan);
+void        model_modify_immission_percentage(model_t *pmodel, size_t fan, int16_t mod);
+uint16_t    model_get_required_immission(model_t *pmodel);
+void        model_set_minion_firmware_version(model_t *pmodel, uint16_t minion, uint16_t major, uint16_t minor,
+                                              uint16_t patch);
+void        model_set_minion_firmware_version_error(model_t *pmodel, uint16_t minion);
+const char *model_get_minion_firmware_version(model_t *pmodel, uint16_t minion);
 
 GETTERNSETTER(minimum_speed, configuration.minimum_speed);
 GETTERNSETTER(communication_error, run.communication_error);

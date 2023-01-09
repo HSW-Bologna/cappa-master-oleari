@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "controller.h"
 #include "model/model.h"
 #include "view/view.h"
@@ -8,6 +9,11 @@
 #include "network/network.h"
 #include "network/server.h"
 #include "peripherals/system.h"
+#include "config/app_config.h"
+#include "esp_log.h"
+
+
+static const char *TAG = "Controller";
 
 
 void controller_init(model_t *pmodel) {
@@ -46,6 +52,19 @@ void controller_process_message(model_t *pmodel, view_controller_message_t *msg)
         case VIEW_CONTROLLER_MESSAGE_CODE_RESET:
             system_reset();
             break;
+
+        case VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSION:
+            modbus_read_firmware_version(msg->device);
+            break;
+
+        case VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSIONS:
+            modbus_read_firmware_version(0);
+            modbus_read_firmware_version(1);
+            break;
+
+        case VIEW_CONTROLLER_MESSAGE_CODE_START_MINION_OTA:
+            modbus_start_ota(msg->device);
+            break;
     }
 }
 
@@ -56,16 +75,36 @@ void controller_manage(model_t *pmodel) {
 
     modbus_response_t response;
     if (modbus_get_response(&response)) {
-        switch (response) {
-            case MODBUS_RESPONSE_OK:
-                if (model_set_communication_error(pmodel, 0)) {
-                    view_event((view_event_t){.code = VIEW_EVENT_CODE_UPDATE});
-                }
+        if (model_set_communication_error(pmodel, response.error)) {
+            ESP_LOGI(TAG, "Communication error %i", response.error);
+            view_event((view_event_t){.code = VIEW_EVENT_CODE_UPDATE});
+        }
+
+        switch (response.tag) {
+            case MODBUS_RESPONSE_TAG_OK:
                 break;
 
-            case MODBUS_RESPONSE_ERROR:
-                if (model_set_communication_error(pmodel, 1)) {
-                    view_event((view_event_t){.code = VIEW_EVENT_CODE_UPDATE});
+            case MODBUS_RESPONSE_TAG_FIRMWARE_VERSION:
+                if (response.error) {
+                    model_set_minion_firmware_version_error(pmodel, response.device);
+                } else {
+                    model_set_minion_firmware_version(pmodel, response.device, response.version_major,
+                                                      response.version_minor, response.version_patch);
+                }
+                view_event((view_event_t){.code = VIEW_EVENT_CODE_UPDATE});
+                break;
+
+            case MODBUS_RESPONSE_TAG_START_OTA:
+                if (response.error) {
+                    char message[64] = {0};
+                    snprintf(message, sizeof(message), "Non sono riusito a raggiungere il dispositivo %i!",
+                             response.device + 1);
+                    view_common_toast(message);
+                } else {
+                    char message[64] = {0};
+                    snprintf(message, sizeof(message), "Rete WiFi per aggiornamento: " APP_CONFIG_WIFI_SSID "-%i",
+                             response.device + 1);
+                    view_common_toast(message);
                 }
                 break;
         }
@@ -74,7 +113,7 @@ void controller_manage(model_t *pmodel) {
     observer_observe(pmodel);
 
     if (ap_started != network_is_ap_running()) {
-        view_common_toast("Rete WiFi per l'aggiornamento firmware attivata.");
+        view_common_toast("Rete WiFi per aggiornamento: " APP_CONFIG_WIFI_SSID);
         ap_started = network_is_ap_running();
     }
 

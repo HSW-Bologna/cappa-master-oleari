@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "model.h"
@@ -15,13 +17,35 @@ void model_init(model_t *pmodel) {
     pmodel->run.firmware_update_state = FIRMWARE_UPDATE_STATE_NONE;
 
     for (size_t i = 0; i < NUM_FANS; i++) {
-        pmodel->run.fan_speeds[i]                      = 50;
-        pmodel->run.fan_on[i]                          = 0;
-        pmodel->run.light_on[i]                        = 0;
+        pmodel->run.fan_speeds[i] = 50;
+        pmodel->run.fan_on[i]     = 0;
+        pmodel->run.light_on[i]   = 0;
+        memset(pmodel->run.minion_firmware_version[i], 0, sizeof(pmodel->run.minion_firmware_version[i]));
         pmodel->configuration.immission_percentages[i] = 30;
     }
 
     check_immission_percentages(pmodel, -1);
+}
+
+
+void model_set_minion_firmware_version(model_t *pmodel, uint16_t minion, uint16_t major, uint16_t minor,
+                                       uint16_t patch) {
+    assert(pmodel != NULL && minion < 2);
+    snprintf(pmodel->run.minion_firmware_version[minion], sizeof(pmodel->run.minion_firmware_version[minion]),
+             "v%u.%u.%u", major, minor, patch);
+}
+
+
+void model_set_minion_firmware_version_error(model_t *pmodel, uint16_t minion) {
+    assert(pmodel != NULL && minion < 2);
+    snprintf(pmodel->run.minion_firmware_version[minion], sizeof(pmodel->run.minion_firmware_version[minion]),
+             "<error>");
+}
+
+
+const char *model_get_minion_firmware_version(model_t *pmodel, uint16_t minion) {
+    assert(pmodel != NULL && minion < 2);
+    return pmodel->run.minion_firmware_version[minion];
 }
 
 
