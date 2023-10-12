@@ -9,6 +9,7 @@
 #include "network/network.h"
 #include "network/server.h"
 #include "peripherals/system.h"
+#include "peripherals/backlight.h"
 #include "config/app_config.h"
 #include "esp_log.h"
 
@@ -22,8 +23,9 @@ void controller_init(model_t *pmodel) {
 
     observer_init(pmodel);
     configuration_load(pmodel);
+    backlight_update(1);
 
-    view_change_page(pmodel, &page_splash);
+    view_change_page_extra(pmodel, &page_splash, (void *)(uintptr_t)0);
 }
 
 
@@ -64,6 +66,11 @@ void controller_process_message(model_t *pmodel, view_controller_message_t *msg)
 
         case VIEW_CONTROLLER_MESSAGE_CODE_START_MINION_OTA:
             modbus_start_ota(msg->device);
+            break;
+
+        case VIEW_CONTROLLER_MESSAGE_CODE_STANDBY:
+            ESP_LOGI(TAG, "Standby %s", msg->value ? "ON" : "OFF");
+            backlight_update(!msg->value);
             break;
     }
 }

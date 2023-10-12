@@ -23,6 +23,7 @@ enum {
     FAN_ENABLE_BTN_ID,
     LIGHT_ENABLE_BTN_ID,
     SETTINGS_BTN_ID,
+    SCREENSAVER_TIMER_ID,
 };
 
 
@@ -38,6 +39,8 @@ struct page_data {
 
     uint8_t anim_state[NUM_FANS];
     size_t  fan_index;
+
+    lv_timer_t *timer_screensaver;
 };
 
 
@@ -53,16 +56,21 @@ static void      snap_event_handler(lv_event_t *e);
 
 static void *create_page(model_t *pmodel, void *extra) {
     struct page_data *pdata = malloc(sizeof(struct page_data));
-    pdata->fan_index        = 1;
-    pdata->anim_state[0]    = 0;
-    pdata->anim_state[1]    = 0;
-    pdata->anim_state[2]    = 0;
+
+    pdata->timer_screensaver = view_register_periodic_timer(10000UL, SCREENSAVER_TIMER_ID);
+
+    pdata->fan_index     = 1;
+    pdata->anim_state[0] = 0;
+    pdata->anim_state[1] = 0;
+    pdata->anim_state[2] = 0;
     return pdata;
 }
 
 
 static void open_page(model_t *pmodel, void *args) {
     struct page_data *pdata = args;
+
+    lv_timer_reset(pdata->timer_screensaver);
 
     pdata->btn_fans[0] = fan_button_create(lv_scr_act(), "Isola");
     lv_obj_align(pdata->btn_fans[0], LV_ALIGN_BOTTOM_LEFT, 2, -2);
@@ -78,6 +86,12 @@ static void open_page(model_t *pmodel, void *args) {
 
     for (size_t i = 0; i < NUM_FANS; i++) {
         pdata->anim_fans[i] = fan_animation(lv_obj_get_child(pdata->btn_fans[i], 0), 1000);
+
+        if (model_get_fan_on(pmodel, i) && model_get_fan_speed(pmodel, i) > 0) {
+            uint16_t period = anim_period_from_speed(model_get_fan_speed(pmodel, pdata->fan_index));
+            lv_anim_set_time(&pdata->anim_fans[i], period);
+            lv_anim_start(&pdata->anim_fans[i]);
+        }
     }
 
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
@@ -158,6 +172,17 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
         case VIEW_EVENT_CODE_UPDATE:
             update_page(pmodel, pdata);
             break;
+
+        case VIEW_EVENT_CODE_TIMER: {
+            if (model_get_fan_on(pmodel, 0) || model_get_fan_on(pmodel, 1) || model_get_fan_on(pmodel, 2)) {
+                // Do nothing
+            } else {
+                msg.vmsg.code  = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE_EXTRA;
+                msg.vmsg.extra = (void *)(uintptr_t)1;
+                msg.vmsg.page  = &page_splash;
+            }
+            break;
+        }
 
         case VIEW_EVENT_CODE_LVGL: {
             switch (event.event) {
@@ -247,17 +272,12 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                 }
 
                 case LV_EVENT_CLICKED: {
+                    lv_timer_reset(pdata->timer_screensaver);
+
                     switch (event.data.id) {
                         case SETTINGS_BTN_ID: {
-                            view_page_message_t pw_msg = {
-                                .code = VIEW_PAGE_MESSAGE_CODE_SWAP,
-                                .page = (void *)&page_settings,
-                            };
-                            password_page_options_t *opts =
-                                view_common_default_password_page_options(pw_msg, (const char *)APP_CONFIG_PASSWORD);
-                            msg.vmsg.code  = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE_EXTRA;
-                            msg.vmsg.extra = opts;
-                            msg.vmsg.page  = (void *)&page_password;
+                            msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
+                            msg.vmsg.page = (void *)&page_menu;
                             break;
                         }
                     }
@@ -302,6 +322,13 @@ static void update_page(model_t *pmodel, struct page_data *pdata) {
     view_common_set_disabled(pdata->arc_speed, !model_get_fan_on(pmodel, pdata->fan_index));
     lv_label_set_text(lv_obj_get_child(pdata->btn_enable_fan, 0),
                       model_get_fan_on(pmodel, pdata->fan_index) ? "ON" : "OFF");
+
+    if (model_get_fan_on(pmodel, 0) || model_get_fan_on(pmodel, 1) || model_get_fan_on(pmodel, 2)) {
+        lv_timer_reset(pdata->timer_screensaver);
+        lv_timer_pause(pdata->timer_screensaver);
+    } else {
+        lv_timer_resume(pdata->timer_screensaver);
+    }
 }
 
 
@@ -409,10 +436,25 @@ static void snap_event_handler(lv_event_t *e) {
 }
 
 
+static void close_page(void *args) {
+    struct page_data *pdata = args;
+    lv_timer_pause(pdata->timer_screensaver);
+    lv_obj_clean(lv_scr_act());
+}
+
+
+static void destroy_page(void *args, void *extra) {
+    (void)extra;
+    struct page_data *pdata = args;
+    lv_timer_del(pdata->timer_screensaver);
+    lv_mem_free(pdata);
+}
+
+
 const pman_page_t page_main = {
     .create        = create_page,
-    .destroy       = view_destroy_all,
+    .destroy       = destroy_page,
     .open          = open_page,
-    .close         = view_close_all,
+    .close         = close_page,
     .process_event = page_event,
 };

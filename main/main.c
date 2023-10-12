@@ -19,6 +19,7 @@
 #include "peripherals/rs485.h"
 #include "peripherals/buzzer.h"
 #include "peripherals/storage.h"
+#include "peripherals/backlight.h"
 #include "rom/gpio.h"
 #include "sdkconfig.h"
 #include "view/view.h"
@@ -48,6 +49,7 @@ const __attribute__((section(".rodata_custom_desc"))) struct {
 void app_main(void) {
     model_t model;
 
+    backlight_init();
     storage_init();
     buzzer_init();
     rs485_init();

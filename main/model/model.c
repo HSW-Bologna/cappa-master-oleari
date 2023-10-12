@@ -165,7 +165,7 @@ static void check_immission_percentages(model_t *pmodel, int currently_editing_f
                 correction = (model_get_immission_percentage(pmodel, i) + correction) - 100;
             }
         } else {
-            if (model_get_immission_percentage(pmodel, i) > -correction) {
+            if (model_get_immission_percentage(pmodel, i) >= -correction) {
                 pmodel->configuration.immission_percentages[i] += correction;
                 correction = 0;
             } else {

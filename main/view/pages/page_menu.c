@@ -6,12 +6,13 @@
 #include "view/view_types.h"
 #include "view/theme/style.h"
 #include "gel/pagemanager/page_manager.h"
+#include "config/app_config.h"
 
 
 enum {
     BACK_BTN_ID,
-    MIN_SPEED_BTN_ID,
-    IMMISSION_SPEED_BTN_ID,
+    SETTINGS_BTN_ID,
+    OTA_BTN_ID,
 };
 
 
@@ -41,13 +42,14 @@ static void open_page(model_t *pmodel, void *args) {
     lv_obj_t *btn = view_common_back_btn_create(cont);
     view_register_object_default_callback(btn, BACK_BTN_ID);
 
-    btn = menu_btn_create(cont, "Velocita' minima");
+    btn = menu_btn_create(cont, "Impostazioni");
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, -40);
-    view_register_object_default_callback(btn, MIN_SPEED_BTN_ID);
+    view_register_object_default_callback(btn, SETTINGS_BTN_ID);
 
-    btn = menu_btn_create(cont, "Porzione di aspirazione");
+    btn = menu_btn_create(cont, "Aggiornamento firmware");
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, 40);
-    view_register_object_default_callback(btn, IMMISSION_SPEED_BTN_ID);
+    view_register_object_default_callback(btn, OTA_BTN_ID);
+
 
     update_page(pmodel, pdata);
 }
@@ -68,14 +70,22 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_BACK;
                             break;
 
-                        case MIN_SPEED_BTN_ID:
-                            msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
-                            msg.vmsg.page = (void *)&page_minimum_speed;
+                        case SETTINGS_BTN_ID: {
+                            view_page_message_t pw_msg = {
+                                .code = VIEW_PAGE_MESSAGE_CODE_SWAP,
+                                .page = (void *)&page_settings,
+                            };
+                            password_page_options_t *opts =
+                                view_common_default_password_page_options(pw_msg, (const char *)APP_CONFIG_PASSWORD);
+                            msg.vmsg.code  = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE_EXTRA;
+                            msg.vmsg.extra = opts;
+                            msg.vmsg.page  = (void *)&page_password;
                             break;
+                        }
 
-                        case IMMISSION_SPEED_BTN_ID:
+                        case OTA_BTN_ID:
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
-                            msg.vmsg.page = (void *)&page_immission_speed;
+                            msg.vmsg.page = (void *)&page_firmware_management;
                             break;
                     }
                     break;
@@ -123,7 +133,7 @@ static lv_obj_t *menu_btn_create(lv_obj_t *root, const char *text) {
 }
 
 
-const pman_page_t page_settings = {
+const pman_page_t page_menu = {
     .create        = create_page,
     .destroy       = destroy_page,
     .open          = open_page,
