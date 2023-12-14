@@ -11,7 +11,6 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 
-#define HAP_BUZZER          GPIO_NUM_15
 #define GPIO_OUTPUT_PIN_SEL (1ULL << HAP_BUZZER)
 
 

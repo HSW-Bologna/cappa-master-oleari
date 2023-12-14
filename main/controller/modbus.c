@@ -268,7 +268,7 @@ static int write_holding_registers(ModbusMaster *master, uint8_t address, uint16
         res                 = 0;
         ModbusErrorInfo err = modbusBuildRequest16RTU(master, address, starting_address, num, data);
         assert(modbusIsOk(err));
-        rs485_sbus_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
+        rs485_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
 
         int len = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
         err     = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
@@ -310,7 +310,7 @@ static int read_holding_registers(ModbusMaster *master, uint16_t *registers, uin
         err = modbusBuildRequest03RTU(master, address, start, count);
         assert(modbusIsOk(err));
 
-        rs485_sbus_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
+        rs485_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
 
         int len = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
         err     = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),

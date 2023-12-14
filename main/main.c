@@ -15,7 +15,6 @@
 #include "lvgl_i2c/i2c_manager.h"
 #include "model/model.h"
 #include "nvs_flash.h"
-#include "peripherals/phase_cut.h"
 #include "peripherals/rs485.h"
 #include "peripherals/buzzer.h"
 #include "peripherals/storage.h"
