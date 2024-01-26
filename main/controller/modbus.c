@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <assert.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -15,10 +16,10 @@
 #define MODBUS_COMMUNICATION_ATTEMPTS    5
 
 #define HOLDING_REGISTER_FAN                0
-#define HOLDING_REGISTER_LIGHT              2
-#define HOLDING_REGISTER_FIRMWARE_VERSION_1 5
-#define HOLDING_REGISTER_FIRMWARE_VERSION_2 6
-#define HOLDING_REGISTER_FIRMWARE_UPDATE    7
+#define HOLDING_REGISTER_LIGHT              1
+#define HOLDING_REGISTER_FIRMWARE_VERSION_1 2
+#define HOLDING_REGISTER_FIRMWARE_VERSION_2 3
+#define HOLDING_REGISTER_ADDRESS            65033
 
 #define MINION_1_ADDR 1
 #define MINION_2_ADDR 2
@@ -27,14 +28,15 @@
 typedef enum {
     TASK_MESSAGE_TAG_SET_SPEED,
     TASK_MESSAGE_TAG_SET_LIGHT,
+    TASK_MESSAGE_TAG_SET_ADDRESS,
     TASK_MESSAGE_TAG_READ_FW_VERSION,
-    TASK_MESSAGE_TAG_START_OTA,
 } task_message_tag_t;
 
 
 struct __attribute__((packed)) task_message {
     task_message_tag_t tag;
     union {
+        uint8_t address;
         struct {
             uint16_t fan;
             uint16_t speed;
@@ -43,7 +45,6 @@ struct __attribute__((packed)) task_message {
             uint16_t light;
             uint8_t  value;
         };
-        uint16_t device;
     };
 };
 
@@ -95,16 +96,14 @@ void modbus_set_light(uint16_t light, uint8_t value) {
 }
 
 
-void modbus_read_firmware_version(uint16_t device) {
-    ESP_LOGI(TAG, "Reading fw version for device %i", device);
-    struct task_message msg = {.tag = TASK_MESSAGE_TAG_READ_FW_VERSION, .device = device};
+void modbus_set_address(uint8_t address) {
+    struct task_message msg = {.tag = TASK_MESSAGE_TAG_SET_ADDRESS, .address = address};
     xQueueSend(messageq, &msg, portMAX_DELAY);
 }
 
 
-void modbus_start_ota(uint16_t device) {
-    ESP_LOGI(TAG, "Starting OTA version for device %i", device);
-    struct task_message msg = {.tag = TASK_MESSAGE_TAG_START_OTA, .device = device};
+void modbus_read_firmware_version(uint8_t address) {
+    struct task_message msg = {.tag = TASK_MESSAGE_TAG_READ_FW_VERSION, .address = address};
     xQueueSend(messageq, &msg, portMAX_DELAY);
 }
 
@@ -140,18 +139,9 @@ static void modbus_task(void *args) {
 
                     ESP_LOGI(TAG, "Setting fan speed for %i to %i", message.fan, message.speed);
 
-                    uint8_t  address = 0;
-                    uint16_t fan     = 0;
+                    uint8_t address = message.fan + 1;
 
-                    if (message.fan < 2) {
-                        address = MINION_1_ADDR;
-                        fan     = message.fan;
-                    } else {
-                        address = MINION_2_ADDR;
-                        fan     = (message.fan) % 2;
-                    }
-
-                    if (write_holding_registers(&master, address, HOLDING_REGISTER_FAN + fan, values, 1)) {
+                    if (write_holding_registers(&master, address, HOLDING_REGISTER_FAN, values, 1)) {
                         response.error = 1;
                     }
                     xQueueSend(responseq, &response, portMAX_DELAY);
@@ -162,43 +152,46 @@ static void modbus_task(void *args) {
                     modbus_response_t response = {.tag = MODBUS_RESPONSE_TAG_OK, .error = 0};
                     uint16_t          values[] = {message.value};
 
-                    uint8_t address = MINION_2_ADDR;
+                    uint8_t address = message.light + 1;
 
-                    if (write_holding_registers(&master, address, HOLDING_REGISTER_LIGHT + message.light, values, 1)) {
+                    if (write_holding_registers(&master, address, HOLDING_REGISTER_LIGHT, values, 1)) {
                         response.error = 1;
                     }
+                    xQueueSend(responseq, &response, portMAX_DELAY);
+                    break;
+                }
+
+                case TASK_MESSAGE_TAG_SET_ADDRESS: {
+                    modbus_response_t response = {.tag = MODBUS_RESPONSE_TAG_OK, .error = 0};
+                    uint16_t          values[] = {message.address};
+
+                    if (write_holding_registers(&master, 0, HOLDING_REGISTER_ADDRESS, values, 1)) {
+                        response.error = 1;
+                    } else {
+                        vTaskDelay(pdMS_TO_TICKS(MODBUS_TIMEOUT / 2));
+                        uint16_t values[2] = {0};
+                        if (read_holding_registers(&master, values, message.address,
+                                                   HOLDING_REGISTER_FIRMWARE_VERSION_1, 2)) {
+                            response.error = 1;
+                        }
+                    }
+
                     xQueueSend(responseq, &response, portMAX_DELAY);
                     break;
                 }
 
                 case TASK_MESSAGE_TAG_READ_FW_VERSION: {
-                    modbus_response_t response     = {.tag = MODBUS_RESPONSE_TAG_FIRMWARE_VERSION, .error = 0};
-                    const uint8_t     addresses[2] = {MINION_1_ADDR, MINION_2_ADDR};
-                    response.device                = message.device;
+                    modbus_response_t response = {.tag = MODBUS_RESPONSE_TAG_FIRMWARE_VERSION, .error = 0};
+                    response.address           = message.address;
 
                     uint16_t values[2] = {0};
-                    if (read_holding_registers(&master, values, addresses[message.device],
-                                               HOLDING_REGISTER_FIRMWARE_VERSION_1, 2)) {
+                    if (read_holding_registers(&master, values, message.address, HOLDING_REGISTER_FIRMWARE_VERSION_1,
+                                               2)) {
                         response.error = 1;
                     } else {
                         response.version_major = (values[0] >> 8) & 0xFF;
                         response.version_minor = values[0] & 0xFF;
                         response.version_patch = values[1] & 0xFF;
-                    }
-
-                    xQueueSend(responseq, &response, portMAX_DELAY);
-                    break;
-                }
-
-                case TASK_MESSAGE_TAG_START_OTA: {
-                    modbus_response_t response     = {.tag = MODBUS_RESPONSE_TAG_START_OTA, .error = 0};
-                    const uint8_t     addresses[2] = {MINION_1_ADDR, MINION_2_ADDR};
-                    response.device                = message.device;
-
-                    uint16_t values[1] = {1};
-                    if (write_holding_registers(&master, addresses[message.device], HOLDING_REGISTER_FIRMWARE_UPDATE,
-                                                values, 1)) {
-                        response.error = 1;
                     }
 
                     xQueueSend(responseq, &response, portMAX_DELAY);
@@ -262,20 +255,25 @@ static int write_holding_registers(ModbusMaster *master, uint8_t address, uint16
     int     res                            = 0;
     size_t  counter                        = 0;
 
-    rs485_flush();
-
     do {
         res                 = 0;
         ModbusErrorInfo err = modbusBuildRequest16RTU(master, address, starting_address, num, data);
         assert(modbusIsOk(err));
+        rs485_flush();
         rs485_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
 
         int len = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
-        err     = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
-                                         buffer, len);
+
+        if (len > 0) {
+            len--;
+        }
+        err = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
+                                     &buffer[1], len);
 
         if (!modbusIsOk(err)) {
             ESP_LOGW(TAG, "Write holding registers for %i error (%i): %i %i", address, len, err.source, err.error);
+            //ESP_LOG_BUFFER_HEX(TAG, (uint8_t *)buffer, len);
+
             res = 1;
             vTaskDelay(pdMS_TO_TICKS(MODBUS_TIMEOUT));
         }
@@ -313,8 +311,11 @@ static int read_holding_registers(ModbusMaster *master, uint16_t *registers, uin
         rs485_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
 
         int len = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
-        err     = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
-                                         buffer, len);
+        if (len > 0) {
+            len--;
+        }
+        err = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
+                                     &buffer[1], len);
 
         if (!modbusIsOk(err)) {
             ESP_LOGW(TAG, "Read holding registers for %i error (%i): %i %i", address, len, err.source, err.error);

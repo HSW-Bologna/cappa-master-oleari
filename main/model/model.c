@@ -30,15 +30,15 @@ void model_init(model_t *pmodel) {
 
 void model_set_minion_firmware_version(model_t *pmodel, uint16_t minion, uint16_t major, uint16_t minor,
                                        uint16_t patch) {
-    assert(pmodel != NULL && minion < 2);
-    snprintf(pmodel->run.minion_firmware_version[minion], sizeof(pmodel->run.minion_firmware_version[minion]),
+    assert(pmodel != NULL && minion > 0);
+    snprintf(pmodel->run.minion_firmware_version[minion - 1], sizeof(pmodel->run.minion_firmware_version[minion - 1]),
              "v%u.%u.%u", major, minor, patch);
 }
 
 
 void model_set_minion_firmware_version_error(model_t *pmodel, uint16_t minion) {
-    assert(pmodel != NULL && minion < 2);
-    snprintf(pmodel->run.minion_firmware_version[minion], sizeof(pmodel->run.minion_firmware_version[minion]),
+    assert(pmodel != NULL && minion > 0);
+    snprintf(pmodel->run.minion_firmware_version[minion - 1], sizeof(pmodel->run.minion_firmware_version[minion - 1]),
              "<error>");
 }
 

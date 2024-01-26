@@ -2,6 +2,9 @@
 #define MODBUS_H_INCLUDED
 
 
+#include <stdint.h>
+
+
 typedef enum {
     MODBUS_RESPONSE_TAG_OK,
     MODBUS_RESPONSE_TAG_FIRMWARE_VERSION,
@@ -11,7 +14,7 @@ typedef enum {
 
 typedef struct {
     modbus_response_tag_t tag;
-    uint16_t              device;
+    uint8_t               address;
     uint8_t               error;
     union {
         struct {
@@ -27,8 +30,8 @@ void    modbus_init(void);
 void    modbus_set_speed(uint16_t fan, uint16_t speed);
 void    modbus_set_light(uint16_t light, uint8_t value);
 uint8_t modbus_get_response(modbus_response_t *response);
-void    modbus_read_firmware_version(uint16_t device);
-void    modbus_start_ota(uint16_t device);
+void    modbus_read_firmware_version(uint8_t address);
+void    modbus_set_address(uint8_t address);
 
 
 #endif

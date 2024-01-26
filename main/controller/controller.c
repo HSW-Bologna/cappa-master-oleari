@@ -26,6 +26,8 @@ void controller_init(model_t *pmodel) {
     backlight_update(1);
 
     view_change_page_extra(pmodel, &page_splash, (void *)(uintptr_t)0);
+
+    //modbus_set_address(2);
 }
 
 
@@ -35,8 +37,9 @@ void controller_process_message(model_t *pmodel, view_controller_message_t *msg)
             break;
 
         case VIEW_CONTROLLER_MESSAGE_CODE_SET_FAN_SPEED:
+            ESP_LOGI(TAG, "Control on %i", msg->fan);
             modbus_set_speed(msg->fan, msg->speed);
-            modbus_set_speed(IMMISSION_FAN, model_get_required_immission(pmodel));
+            // modbus_set_speed(IMMISSION_FAN, model_get_required_immission(pmodel));
             break;
 
         case VIEW_CONTROLLER_MESSAGE_CODE_SET_LIGHT:
@@ -60,12 +63,10 @@ void controller_process_message(model_t *pmodel, view_controller_message_t *msg)
             break;
 
         case VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSIONS:
-            modbus_read_firmware_version(0);
             modbus_read_firmware_version(1);
-            break;
-
-        case VIEW_CONTROLLER_MESSAGE_CODE_START_MINION_OTA:
-            modbus_start_ota(msg->device);
+            modbus_read_firmware_version(2);
+            modbus_read_firmware_version(3);
+            modbus_read_firmware_version(4);
             break;
 
         case VIEW_CONTROLLER_MESSAGE_CODE_STANDBY:
@@ -93,9 +94,9 @@ void controller_manage(model_t *pmodel) {
 
             case MODBUS_RESPONSE_TAG_FIRMWARE_VERSION:
                 if (response.error) {
-                    model_set_minion_firmware_version_error(pmodel, response.device);
+                    model_set_minion_firmware_version_error(pmodel, response.address);
                 } else {
-                    model_set_minion_firmware_version(pmodel, response.device, response.version_major,
+                    model_set_minion_firmware_version(pmodel, response.address, response.version_major,
                                                       response.version_minor, response.version_patch);
                 }
                 view_event((view_event_t){.code = VIEW_EVENT_CODE_UPDATE});
@@ -105,12 +106,12 @@ void controller_manage(model_t *pmodel) {
                 if (response.error) {
                     char message[64] = {0};
                     snprintf(message, sizeof(message), "Non sono riusito a raggiungere il dispositivo %i!",
-                             response.device + 1);
+                             response.address);
                     view_common_toast(message);
                 } else {
                     char message[64] = {0};
                     snprintf(message, sizeof(message), "Rete WiFi per aggiornamento: " APP_CONFIG_WIFI_SSID "-%i",
-                             response.device + 1);
+                             response.address);
                     view_common_toast(message);
                 }
                 break;

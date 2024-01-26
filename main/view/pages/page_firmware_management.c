@@ -11,7 +11,6 @@
 enum {
     BACK_BTN_ID,
     OTA_BTN_ID,
-    MINION_OTA_BTN_ID,
     MINION_READ_FW_BTN_ID,
 };
 
@@ -58,12 +57,8 @@ static void open_page(model_t *pmodel, void *args) {
     lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 96 + 72);
     pdata->lbl_minion_fw_version[0] = lbl;
 
-    btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_UPLOAD);
-    view_register_object_default_callback_with_number(btn, MINION_OTA_BTN_ID, 0);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8, 96 + 72);
-
     btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_REFRESH);
-    view_register_object_default_callback_with_number(btn, MINION_READ_FW_BTN_ID, 0);
+    view_register_object_default_callback_with_number(btn, MINION_READ_FW_BTN_ID, 1);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8 - 72, 96 + 72);
 
 
@@ -71,12 +66,8 @@ static void open_page(model_t *pmodel, void *args) {
     lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 96 + 72 + 72);
     pdata->lbl_minion_fw_version[1] = lbl;
 
-    btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_UPLOAD);
-    view_register_object_default_callback_with_number(btn, MINION_OTA_BTN_ID, 1);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8, 96 + 72 + 72);
-
     btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_REFRESH);
-    view_register_object_default_callback_with_number(btn, MINION_READ_FW_BTN_ID, 1);
+    view_register_object_default_callback_with_number(btn, MINION_READ_FW_BTN_ID, 2);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8 - 72, 96 + 72 + 72);
 
 
@@ -114,11 +105,6 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
 
                         case MINION_READ_FW_BTN_ID:
                             msg.cmsg.code   = VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSION;
-                            msg.cmsg.device = event.data.number;
-                            break;
-
-                        case MINION_OTA_BTN_ID:
-                            msg.cmsg.code   = VIEW_CONTROLLER_MESSAGE_CODE_START_MINION_OTA;
                             msg.cmsg.device = event.data.number;
                             break;
                     }

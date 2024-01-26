@@ -31,7 +31,7 @@ void rs485_init(void) {
     gpio_set_level(HAP_DIR, 0);
 
     uart_config_t uart_config = {
-        .baud_rate           = 115200,
+        .baud_rate           = 19200,
         .data_bits           = UART_DATA_8_BITS,
         .parity              = UART_PARITY_DISABLE,
         .stop_bits           = UART_STOP_BITS_1,
@@ -69,8 +69,8 @@ void rs485_write(uint8_t *buffer, size_t len) {
     ets_delay_us(10);
     uart_write_bytes(PORTNUM, buffer, len);
     ESP_ERROR_CHECK(uart_wait_tx_done(PORTNUM, portMAX_DELAY));
-    ets_delay_us(200);
     gpio_set_level(HAP_DIR, 0);
+    ets_delay_us(10);
     // In this particular project asserting/deasserting the DIR line causes a couple of null bytes to be received, so we
     // must flush them
     rs485_flush();

@@ -6,7 +6,7 @@ int rs485_read(uint8_t *buffer, size_t len, unsigned long timeout_ms) {
 }
 
 
-void rs485_sbus_write(uint8_t *buffer, size_t len) {}
+void rs485_write(uint8_t *buffer, size_t len) {}
 
 
 void rs485_flush(void) {}
