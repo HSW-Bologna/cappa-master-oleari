@@ -10,18 +10,12 @@
 
 enum {
     BACK_BTN_ID,
-    MOTOR_1_MODIFY_BTN_ID,
-    MOTOR_2_MODIFY_BTN_ID,
-    MOTOR_3_MODIFY_BTN_ID,
+    GAS_MODIFY_BTN_ID,
 };
 
 
 struct page_data {
-    lv_obj_t *slider_min_speed;
-
-    lv_obj_t *lbl_motor_1;
-    lv_obj_t *lbl_motor_2;
-    lv_obj_t *lbl_motor_3;
+    lv_obj_t *cb_gas;
 };
 
 
@@ -40,33 +34,17 @@ static void open_page(model_t *pmodel, void *args) {
     struct page_data *pdata = args;
 
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
-    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
 
-    view_common_create_title(cont, "Porzione di Immissione", BACK_BTN_ID);
+    view_common_create_title(cont, "Abilitazione gas", BACK_BTN_ID);
 
-    lv_obj_t *flex = lv_obj_create(lv_scr_act());
-    lv_obj_add_flag(flex, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
-    lv_obj_set_size(flex, LV_PCT(100), LV_VER_RES - 88);
-    lv_obj_add_style(flex, (lv_style_t *)&style_transparent_cont, LV_STATE_DEFAULT);
-    lv_obj_set_flex_flow(flex, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(flex, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_column(flex, 0, LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_gap(flex, 0, LV_STATE_DEFAULT);
-    lv_obj_align(flex, LV_ALIGN_BOTTOM_MID, 0, 0);
-
-    percentage_editor_create(flex, &pdata->lbl_motor_1, MOTOR_1_MODIFY_BTN_ID);
-    if (pmodel->configuration.num_fans > 1) {
-        percentage_editor_create(flex, &pdata->lbl_motor_2, MOTOR_2_MODIFY_BTN_ID);
-    } else {
-        pdata->lbl_motor_2 = NULL;
-    }
-    if (pmodel->configuration.num_fans > 2) {
-        percentage_editor_create(flex, &pdata->lbl_motor_3, MOTOR_3_MODIFY_BTN_ID);
-    } else {
-        pdata->lbl_motor_3 = NULL;
-    }
+    lv_obj_t *cb = lv_checkbox_create(cont);
+    lv_obj_set_style_pad_all(cb, 16, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_checkbox_set_text(cb, "Gas");
+    view_register_object_default_callback(cb, GAS_MODIFY_BTN_ID);
+    lv_obj_center(cb);
+    pdata->cb_gas = cb;
 
     update_page(pmodel, pdata);
 }
@@ -87,20 +65,14 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                         case BACK_BTN_ID:
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_BACK;
                             break;
+                    }
+                    break;
+                }
 
-                        case MOTOR_1_MODIFY_BTN_ID:
-                            model_modify_immission_percentage(pmodel, 0, 5 * event.data.number);
-                            update_page(pmodel, pdata);
-                            break;
-
-                        case MOTOR_2_MODIFY_BTN_ID:
-                            model_modify_immission_percentage(pmodel, 1, 5 * event.data.number);
-                            update_page(pmodel, pdata);
-                            break;
-
-                        case MOTOR_3_MODIFY_BTN_ID:
-                            model_modify_immission_percentage(pmodel, 2, 5 * event.data.number);
-                            update_page(pmodel, pdata);
+                case LV_EVENT_VALUE_CHANGED: {
+                    switch (event.data.id) {
+                        case GAS_MODIFY_BTN_ID:
+                            pmodel->configuration.gas_enabled = lv_obj_has_state(pdata->cb_gas, LV_STATE_CHECKED);
                             break;
                     }
                     break;
@@ -122,6 +94,7 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
 
 static void close_page(void *args) {
     struct page_data *pdata = args;
+    (void)pdata;
     lv_obj_clean(lv_scr_act());
 }
 
@@ -134,15 +107,10 @@ static void destroy_page(void *args, void *extra) {
 
 
 static void update_page(model_t *pmodel, struct page_data *pdata) {
-    lv_label_set_text_fmt(pdata->lbl_motor_1, "%s:\n%i%%", model_get_fan_name(pmodel, 0),
-                          model_get_immission_percentage(pmodel, 0));
-    if (pdata->lbl_motor_2 != NULL) {
-        lv_label_set_text_fmt(pdata->lbl_motor_2, "%s:\n%i%%", model_get_fan_name(pmodel, 1),
-                              model_get_immission_percentage(pmodel, 1));
-    }
-    if (pdata->lbl_motor_3 != NULL) {
-        lv_label_set_text_fmt(pdata->lbl_motor_3, "%s:\n%i%%", model_get_fan_name(pmodel, 2),
-                              model_get_immission_percentage(pmodel, 2));
+    if (pmodel->configuration.gas_enabled) {
+        lv_obj_add_state(pdata->cb_gas, LV_STATE_CHECKED);
+    } else {
+        lv_obj_clear_state(pdata->cb_gas, LV_STATE_CHECKED);
     }
 }
 
@@ -150,11 +118,11 @@ static void update_page(model_t *pmodel, struct page_data *pdata) {
 static lv_obj_t *percentage_editor_create(lv_obj_t *parent, lv_obj_t **lbl, int id) {
     lv_obj_t *cont = lv_obj_create(parent);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(cont, LV_HOR_RES - 36, 72);
+    lv_obj_set_size(cont, 340, 72);
     lv_obj_add_style(cont, (lv_style_t *)&style_transparent_cont, LV_STATE_DEFAULT);
+    lv_obj_add_flag(cont, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
 
     *lbl = lv_label_create(cont);
-    lv_obj_set_style_text_font(*lbl, STYLE_FONT_MEDIUM, LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(*lbl, LV_TEXT_ALIGN_CENTER, LV_STATE_DEFAULT);
     lv_obj_center(*lbl);
 
@@ -180,7 +148,7 @@ static lv_obj_t *percentage_editor_create(lv_obj_t *parent, lv_obj_t **lbl, int 
 }
 
 
-const pman_page_t page_immission_speed = {
+const pman_page_t page_gas = {
     .create        = create_page,
     .destroy       = destroy_page,
     .open          = open_page,

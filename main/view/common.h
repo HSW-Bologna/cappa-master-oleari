@@ -2,6 +2,10 @@
 #define COMMON_H_INCLUDED
 
 
+#include "view.h"
+#include "lvgl.h"
+
+
 typedef struct {
     const char         *password;
     view_page_message_t msg;
@@ -15,6 +19,7 @@ lv_obj_t                *view_common_back_btn_create(lv_obj_t *root);
 lv_obj_t                *view_common_toast_with_parent(const char *msg, lv_obj_t *parent);
 lv_obj_t                *view_common_toast(const char *msg);
 void                     view_common_set_hidden(lv_obj_t *obj, int hidden);
+lv_obj_t                *view_common_create_title(lv_obj_t *parent, const char *text, int id);
 
 
 #endif

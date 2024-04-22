@@ -8,10 +8,18 @@
 void configuration_load(model_t *pmodel);
 
 
-extern const char *CONFIGURATION_MIN_SPEED_KEY;
+extern const char *CONFIGURATION_MIN_SPEED_1_KEY;
+extern const char *CONFIGURATION_MIN_SPEED_2_KEY;
+extern const char *CONFIGURATION_MIN_SPEED_3_KEY;
 extern const char *CONFIGURATION_IMM_PERC_1_KEY;
 extern const char *CONFIGURATION_IMM_PERC_2_KEY;
 extern const char *CONFIGURATION_IMM_PERC_3_KEY;
+extern const char *CONFIGURATION_NUM_FANS_KEY;
+extern const char *CONFIGURATION_IMMISSION_FAN_KEY;
+extern const char *CONFIGURATION_NORMAL_BRIGHTNESS_KEY;
+extern const char *CONFIGURATION_STANDBY_BRIGHTNESS_KEY;
+extern const char *CONFIGURATION_LOGO_KEY;
+extern const char *CONFIGURATION_GAS_KEY;
 
 
 #endif

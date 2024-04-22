@@ -6,6 +6,7 @@
 #include "modbus.h"
 #include "esp_log.h"
 #include "peripherals/rs485.h"
+#include "model/model.h"
 
 
 #define MODBUS_RESPONSE_03_LEN(data_len) (5 + data_len * 2)
@@ -16,14 +17,10 @@
 #define MODBUS_COMMUNICATION_ATTEMPTS    5
 
 #define HOLDING_REGISTER_FAN                0
-#define HOLDING_REGISTER_LIGHT              1
+#define HOLDING_REGISTER_RELAYS             1
 #define HOLDING_REGISTER_FIRMWARE_VERSION_1 2
 #define HOLDING_REGISTER_FIRMWARE_VERSION_2 3
 #define HOLDING_REGISTER_ADDRESS            65033
-
-#define MINION_1_ADDR 1
-#define MINION_2_ADDR 2
-
 
 typedef enum {
     TASK_MESSAGE_TAG_SET_SPEED,
@@ -40,6 +37,7 @@ struct __attribute__((packed)) task_message {
         struct {
             uint16_t fan;
             uint16_t speed;
+            uint16_t gas;
         };
         struct {
             uint16_t light;
@@ -84,8 +82,8 @@ void modbus_init(void) {
 }
 
 
-void modbus_set_speed(uint16_t fan, uint16_t speed) {
-    struct task_message msg = {.tag = TASK_MESSAGE_TAG_SET_SPEED, .fan = fan, .speed = speed};
+void modbus_set_speed(uint16_t fan, uint16_t speed, uint8_t gas) {
+    struct task_message msg = {.tag = TASK_MESSAGE_TAG_SET_SPEED, .fan = fan, .speed = speed, .gas = gas};
     xQueueSend(messageq, &msg, portMAX_DELAY);
 }
 
@@ -128,6 +126,8 @@ static void modbus_task(void *args) {
     assert(modbusIsOk(err) && "modbusMasterInit() failed");
     struct task_message message = {0};
 
+    uint16_t relays[MAX_FANS] = {0};
+
     ESP_LOGI(TAG, "Task starting");
 
     for (;;) {
@@ -135,26 +135,36 @@ static void modbus_task(void *args) {
             switch (message.tag) {
                 case TASK_MESSAGE_TAG_SET_SPEED: {
                     modbus_response_t response = {.tag = MODBUS_RESPONSE_TAG_OK, .error = 0};
-                    uint16_t          values[] = {message.speed};
+                    uint8_t           address  = message.fan + 1;
+
+                    uint8_t gas_relay = message.gas ? (message.speed > 0) : 0;
+                    uint8_t relay     = 0;
+                    if (message.fan < MAX_FANS) {
+                        relays[message.fan] = (relays[message.fan] & (~0x02)) | (gas_relay ? 0x02 : 0x00);
+                        relay               = relays[message.fan];
+                    }
+
+                    uint16_t values[] = {message.speed, relay};
 
                     ESP_LOGI(TAG, "Setting fan speed for %i to %i", message.fan, message.speed);
 
-                    uint8_t address = message.fan + 1;
-
-                    if (write_holding_registers(&master, address, HOLDING_REGISTER_FAN, values, 1)) {
+                    if (write_holding_registers(&master, address, HOLDING_REGISTER_FAN, values, 2)) {
                         response.error = 1;
                     }
+
                     xQueueSend(responseq, &response, portMAX_DELAY);
                     break;
                 }
 
                 case TASK_MESSAGE_TAG_SET_LIGHT: {
                     modbus_response_t response = {.tag = MODBUS_RESPONSE_TAG_OK, .error = 0};
-                    uint16_t          values[] = {message.value};
+
+                    relays[message.light] = (relays[message.light] & (~0x01)) | (message.value ? 0x01 : 0x00);
+                    uint16_t values[]     = {relays[message.light]};
 
                     uint8_t address = message.light + 1;
 
-                    if (write_holding_registers(&master, address, HOLDING_REGISTER_LIGHT, values, 1)) {
+                    if (write_holding_registers(&master, address, HOLDING_REGISTER_RELAYS, values, 1)) {
                         response.error = 1;
                     }
                     xQueueSend(responseq, &response, portMAX_DELAY);
@@ -264,15 +274,19 @@ static int write_holding_registers(ModbusMaster *master, uint8_t address, uint16
 
         int len = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
 
+        size_t starting_index = 0;
         if (len > 0) {
-            len--;
+            if (buffer[starting_index] == 0) {
+                len--;
+                starting_index++;
+            }
         }
         err = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
-                                     &buffer[1], len);
+                                     &buffer[starting_index], len);
 
         if (!modbusIsOk(err)) {
             ESP_LOGW(TAG, "Write holding registers for %i error (%i): %i %i", address, len, err.source, err.error);
-            //ESP_LOG_BUFFER_HEX(TAG, (uint8_t *)buffer, len);
+            // ESP_LOG_BUFFER_HEX(TAG, (uint8_t *)buffer, len);
 
             res = 1;
             vTaskDelay(pdMS_TO_TICKS(MODBUS_TIMEOUT));
@@ -310,12 +324,16 @@ static int read_holding_registers(ModbusMaster *master, uint16_t *registers, uin
 
         rs485_write((uint8_t *)modbusMasterGetRequest(master), modbusMasterGetRequestLength(master));
 
-        int len = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
+        int    len            = rs485_read(buffer, sizeof(buffer), pdMS_TO_TICKS(MODBUS_TIMEOUT));
+        size_t starting_index = 0;
         if (len > 0) {
-            len--;
+            if (buffer[starting_index] == 0) {
+                len--;
+                starting_index++;
+            }
         }
         err = modbusParseResponseRTU(master, modbusMasterGetRequest(master), modbusMasterGetRequestLength(master),
-                                     &buffer[1], len);
+                                     &buffer[starting_index], len);
 
         if (!modbusIsOk(err)) {
             ESP_LOGW(TAG, "Read holding registers for %i error (%i): %i %i", address, len, err.source, err.error);

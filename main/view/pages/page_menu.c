@@ -12,6 +12,7 @@
 enum {
     BACK_BTN_ID,
     SETTINGS_BTN_ID,
+    BRIGHTNESS_BTN_ID,
     OTA_BTN_ID,
 };
 
@@ -38,16 +39,18 @@ static void open_page(model_t *pmodel, void *args) {
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
 
+    view_common_create_title(cont, "Impostazioni", BACK_BTN_ID);
 
-    lv_obj_t *btn = view_common_back_btn_create(cont);
-    view_register_object_default_callback(btn, BACK_BTN_ID);
-
-    btn = menu_btn_create(cont, "Impostazioni");
+    lv_obj_t *btn = menu_btn_create(cont, "Parametri");
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, -40);
     view_register_object_default_callback(btn, SETTINGS_BTN_ID);
 
-    btn = menu_btn_create(cont, "Aggiornamento firmware");
+    btn = menu_btn_create(cont, "Luminosita'");
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, 40);
+    view_register_object_default_callback(btn, BRIGHTNESS_BTN_ID);
+
+    btn = menu_btn_create(cont, "Gestione Firmware");
+    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 120);
     view_register_object_default_callback(btn, OTA_BTN_ID);
 
 
@@ -68,6 +71,11 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                     switch (event.data.id) {
                         case BACK_BTN_ID:
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_BACK;
+                            break;
+
+                        case BRIGHTNESS_BTN_ID:
+                            msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_CHANGE_PAGE;
+                            msg.vmsg.page = (void *)&page_brightness;
                             break;
 
                         case SETTINGS_BTN_ID: {
@@ -107,6 +115,7 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
 
 static void close_page(void *args) {
     struct page_data *pdata = args;
+    (void)pdata;
     lv_obj_clean(lv_scr_act());
 }
 

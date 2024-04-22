@@ -9,18 +9,18 @@ static const lv_style_const_prop_t style_transparent_cont_props[] = {
 LV_STYLE_CONST_INIT(style_transparent_cont, style_transparent_cont_props);
 
 static const lv_style_const_prop_t style_arc_props[] = {
-    LV_STYLE_CONST_ARC_WIDTH(24),
+    LV_STYLE_CONST_ARC_WIDTH(26),
 };
 LV_STYLE_CONST_INIT(style_arc, style_arc_props);
 
 static const lv_style_const_prop_t style_arc_indicator_props[] = {
-    LV_STYLE_CONST_ARC_WIDTH(24),
+    LV_STYLE_CONST_ARC_WIDTH(26),
 };
 LV_STYLE_CONST_INIT(style_arc_indicator, style_arc_indicator_props);
 
 static const lv_style_const_prop_t style_arc_knob_props[] = {
-    LV_STYLE_CONST_PAD_BOTTOM(16), LV_STYLE_CONST_PAD_TOP(16),     LV_STYLE_CONST_PAD_LEFT(16),
-    LV_STYLE_CONST_PAD_RIGHT(16),  LV_STYLE_CONST_BORDER_WIDTH(2),
+    LV_STYLE_CONST_PAD_BOTTOM(18), LV_STYLE_CONST_PAD_TOP(18),     LV_STYLE_CONST_PAD_LEFT(18),
+    LV_STYLE_CONST_PAD_RIGHT(18),  LV_STYLE_CONST_BORDER_WIDTH(2),
 };
 LV_STYLE_CONST_INIT(style_arc_knob, style_arc_knob_props);
 

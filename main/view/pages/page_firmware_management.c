@@ -16,7 +16,7 @@ enum {
 
 
 struct page_data {
-    lv_obj_t *lbl_minion_fw_version[2];
+    lv_obj_t *lbl_minion_fw_version[MAX_DEVICES];
 };
 
 
@@ -39,37 +39,37 @@ static void open_page(model_t *pmodel, void *args) {
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
 
-
-    lv_obj_t *btn = view_common_back_btn_create(cont);
-    view_register_object_default_callback(btn, BACK_BTN_ID);
+    view_common_create_title(cont, "Gestione Firmware", BACK_BTN_ID);
 
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text_fmt(lbl, "Display v%i.%i.%i", APP_CONFIG_FIRMWARE_VERSION_MAJOR,
                           APP_CONFIG_FIRMWARE_VERSION_MINOR, APP_CONFIG_FIRMWARE_VERSION_PATCH);
-    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 96);
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 80, 68);
 
-    btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_UPLOAD);
+    lv_obj_t *btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_UPLOAD);
     view_register_object_default_callback(btn, OTA_BTN_ID);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8, 96);
+    lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 16, 72);
 
 
     lbl = lv_label_create(cont);
-    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 96 + 72);
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 80, 72 + 56);
     pdata->lbl_minion_fw_version[0] = lbl;
 
     btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_REFRESH);
-    view_register_object_default_callback_with_number(btn, MINION_READ_FW_BTN_ID, 1);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8 - 72, 96 + 72);
-
+    view_register_object_default_callback(btn, MINION_READ_FW_BTN_ID);
+    lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 16, 72 + 56 + 68);
 
     lbl = lv_label_create(cont);
-    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 96 + 72 + 72);
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 80, 72 + 56 + 44);
     pdata->lbl_minion_fw_version[1] = lbl;
 
-    btn = menu_btn_create(lv_scr_act(), LV_SYMBOL_REFRESH);
-    view_register_object_default_callback_with_number(btn, MINION_READ_FW_BTN_ID, 2);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -8 - 72, 96 + 72 + 72);
+    lbl = lv_label_create(cont);
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 80, 72 + 56 + 44 * 2);
+    pdata->lbl_minion_fw_version[2] = lbl;
 
+    lbl = lv_label_create(cont);
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 80, 72 + 56 + 44 * 3);
+    pdata->lbl_minion_fw_version[3] = lbl;
 
     update_page(pmodel, pdata);
 }
@@ -104,8 +104,7 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                             break;
 
                         case MINION_READ_FW_BTN_ID:
-                            msg.cmsg.code   = VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSION;
-                            msg.cmsg.device = event.data.number;
+                            msg.cmsg.code = VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSIONS;
                             break;
                     }
                     break;
@@ -139,8 +138,15 @@ static void destroy_page(void *args, void *extra) {
 
 
 static void update_page(model_t *pmodel, struct page_data *pdata) {
+    view_common_set_hidden(pdata->lbl_minion_fw_version[0], pmodel->configuration.num_fans <= 0);
+    view_common_set_hidden(pdata->lbl_minion_fw_version[1], pmodel->configuration.num_fans <= 1);
+    view_common_set_hidden(pdata->lbl_minion_fw_version[2], pmodel->configuration.num_fans <= 2);
+    view_common_set_hidden(pdata->lbl_minion_fw_version[3], !pmodel->configuration.immission_fan);
+
     lv_label_set_text_fmt(pdata->lbl_minion_fw_version[0], "Disp. 1: %s", model_get_minion_firmware_version(pmodel, 0));
     lv_label_set_text_fmt(pdata->lbl_minion_fw_version[1], "Disp. 2: %s", model_get_minion_firmware_version(pmodel, 1));
+    lv_label_set_text_fmt(pdata->lbl_minion_fw_version[2], "Disp. 3: %s", model_get_minion_firmware_version(pmodel, 2));
+    lv_label_set_text_fmt(pdata->lbl_minion_fw_version[3], "Disp. 4: %s", model_get_minion_firmware_version(pmodel, 3));
 }
 
 

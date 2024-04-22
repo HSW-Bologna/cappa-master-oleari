@@ -4,8 +4,11 @@
 #include "lvgl.h"
 
 
-#define STYLE_RED ((lv_color_t)LV_COLOR_MAKE(0xFF, 0, 0))
+#define STYLE_RED   ((lv_color_t)LV_COLOR_MAKE(0xFF, 0, 0))
 #define STYLE_BLACK ((lv_color_t)LV_COLOR_MAKE(0, 0, 0))
+
+#define STYLE_FONT_BIG    (&lv_font_montserrat_48)
+#define STYLE_FONT_MEDIUM (&lv_font_montserrat_24)
 
 
 void style_init(void);

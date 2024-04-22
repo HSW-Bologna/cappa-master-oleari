@@ -8,6 +8,8 @@
 
 
 LV_IMG_DECLARE(img_logo_oleari);
+LV_IMG_DECLARE(img_logo_hsw);
+LV_IMG_DECLARE(img_logo_antralux);
 
 
 enum {
@@ -46,13 +48,25 @@ static void open_page(model_t *pmodel, void *args) {
     }
 
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
+    lv_obj_set_style_pad_all(cont, 0, LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(cont, 0, LV_STATE_DEFAULT);
     lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_flag(cont, LV_OBJ_FLAG_CLICKABLE);
     view_register_object_default_callback(cont, SCREEN_BTN_ID);
 
     lv_obj_t *img = lv_img_create(cont);
-    lv_img_set_src(img, &img_logo_oleari);
+    switch (pmodel->configuration.logo) {
+        case LOGO_OLEARI:
+            lv_img_set_src(img, &img_logo_oleari);
+            break;
+        case LOGO_HSW:
+            lv_img_set_src(img, &img_logo_hsw);
+            break;
+        case LOGO_ANTRALUX:
+            lv_img_set_src(img, &img_logo_antralux);
+            break;
+    }
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 }
 
@@ -61,6 +75,9 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
     view_message_t msg = VIEW_NULL_MESSAGE;
 
     switch (event.code) {
+        case VIEW_EVENT_CODE_OPEN:
+            break;
+
         case VIEW_EVENT_CODE_TIMER: {
             switch (event.timer_code) {
                 case EXIT_TIMER_ID:
@@ -84,7 +101,8 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
 
                     switch (event.data.id) {
                         case SCREEN_BTN_ID:
-                            msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_BACK;
+                            pmodel->run.standby = 0;
+                            msg.vmsg.code       = VIEW_PAGE_MESSAGE_CODE_BACK;
                             break;
                     }
                     break;

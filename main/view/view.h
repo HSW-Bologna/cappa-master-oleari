@@ -35,7 +35,7 @@ int         view_current_page_id(void);
 
 
 extern const pman_page_t page_main, page_splash, page_password, page_settings, page_minimum_speed, page_immission_speed,
-    page_firmware_update, page_firmware_management, page_menu;
+    page_firmware_update, page_firmware_management, page_menu, page_num_fans, page_brightness, page_logo, page_gas;
 
 
 #endif

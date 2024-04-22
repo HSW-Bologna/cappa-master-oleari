@@ -21,25 +21,19 @@ void controller_init(model_t *pmodel) {
     modbus_init();
     network_init();
 
-    observer_init(pmodel);
     configuration_load(pmodel);
-    backlight_update(1);
+    observer_init(pmodel);
+    backlight_update(pmodel->configuration.normal_brightness);
 
     view_change_page_extra(pmodel, &page_splash, (void *)(uintptr_t)0);
 
-    //modbus_set_address(2);
+    // modbus_set_address(2);
 }
 
 
 void controller_process_message(model_t *pmodel, view_controller_message_t *msg) {
     switch (msg->code) {
         case VIEW_CONTROLLER_MESSAGE_CODE_NOTHING:
-            break;
-
-        case VIEW_CONTROLLER_MESSAGE_CODE_SET_FAN_SPEED:
-            ESP_LOGI(TAG, "Control on %i", msg->fan);
-            modbus_set_speed(msg->fan, msg->speed);
-            // modbus_set_speed(IMMISSION_FAN, model_get_required_immission(pmodel));
             break;
 
         case VIEW_CONTROLLER_MESSAGE_CODE_SET_LIGHT:
@@ -58,20 +52,24 @@ void controller_process_message(model_t *pmodel, view_controller_message_t *msg)
             system_reset();
             break;
 
-        case VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSION:
-            modbus_read_firmware_version(msg->device);
+        case VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSIONS: {
+            if (pmodel->configuration.num_fans > 0) {
+                modbus_read_firmware_version(1);
+            }
+            if (pmodel->configuration.num_fans > 1) {
+                modbus_read_firmware_version(2);
+            }
+            if (pmodel->configuration.num_fans > 2) {
+                modbus_read_firmware_version(3);
+            }
+            if (pmodel->configuration.immission_fan) {
+                modbus_read_firmware_version(4);
+            }
             break;
-
-        case VIEW_CONTROLLER_MESSAGE_CODE_READ_FW_VERSIONS:
-            modbus_read_firmware_version(1);
-            modbus_read_firmware_version(2);
-            modbus_read_firmware_version(3);
-            modbus_read_firmware_version(4);
-            break;
+        }
 
         case VIEW_CONTROLLER_MESSAGE_CODE_STANDBY:
             ESP_LOGI(TAG, "Standby %s", msg->value ? "ON" : "OFF");
-            backlight_update(!msg->value);
             break;
     }
 }

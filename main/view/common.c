@@ -6,6 +6,28 @@
 static void delete_obj_timer(lv_timer_t *timer);
 
 
+lv_obj_t *view_common_create_title(lv_obj_t *parent, const char *text, int id) {
+    lv_obj_t *btn = view_common_back_btn_create(parent);
+    view_register_object_default_callback(btn, id);
+
+    lv_obj_t *lbl = lv_label_create(parent);
+    lv_obj_set_width(lbl, LV_HOR_RES - 80);
+    lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
+    lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_STATE_DEFAULT);
+
+    size_t len = strlen(text);
+    if (len > 12) {
+        lv_obj_set_style_text_font(lbl, STYLE_FONT_MEDIUM, LV_STATE_DEFAULT);
+    } else {
+        lv_obj_set_style_text_font(lbl, STYLE_FONT_BIG, LV_STATE_DEFAULT);
+    }
+    lv_label_set_text(lbl, text);
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 0);
+
+    return btn;
+}
+
+
 void view_common_set_checked(lv_obj_t *obj, uint8_t checked) {
     if ((lv_obj_get_state(obj) & LV_STATE_CHECKED) > 0 && !checked) {
         lv_obj_clear_state(obj, LV_STATE_CHECKED);

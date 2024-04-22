@@ -6,22 +6,19 @@
 #include "view/view_types.h"
 #include "view/theme/style.h"
 #include "gel/pagemanager/page_manager.h"
+#include "config/app_config.h"
 
 
 enum {
     BACK_BTN_ID,
-    MOTOR_1_MODIFY_BTN_ID,
-    MOTOR_2_MODIFY_BTN_ID,
-    MOTOR_3_MODIFY_BTN_ID,
+    NORMAL_BTN_ID,
+    STANDBY_BTN_ID,
 };
 
 
 struct page_data {
-    lv_obj_t *slider_min_speed;
-
-    lv_obj_t *lbl_motor_1;
-    lv_obj_t *lbl_motor_2;
-    lv_obj_t *lbl_motor_3;
+    lv_obj_t *lbl_normal_brightness;
+    lv_obj_t *lbl_standby_brightness;
 };
 
 
@@ -40,41 +37,25 @@ static void open_page(model_t *pmodel, void *args) {
     struct page_data *pdata = args;
 
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
-    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
 
-    view_common_create_title(cont, "Porzione di Immissione", BACK_BTN_ID);
+    view_common_create_title(cont, "Luminosita'", BACK_BTN_ID);
 
-    lv_obj_t *flex = lv_obj_create(lv_scr_act());
-    lv_obj_add_flag(flex, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
-    lv_obj_set_size(flex, LV_PCT(100), LV_VER_RES - 88);
-    lv_obj_add_style(flex, (lv_style_t *)&style_transparent_cont, LV_STATE_DEFAULT);
-    lv_obj_set_flex_flow(flex, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(flex, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_column(flex, 0, LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_gap(flex, 0, LV_STATE_DEFAULT);
-    lv_obj_align(flex, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_t *editor = percentage_editor_create(lv_scr_act(), &pdata->lbl_normal_brightness, NORMAL_BTN_ID);
+    lv_obj_align(editor, LV_ALIGN_CENTER, 0, -20);
 
-    percentage_editor_create(flex, &pdata->lbl_motor_1, MOTOR_1_MODIFY_BTN_ID);
-    if (pmodel->configuration.num_fans > 1) {
-        percentage_editor_create(flex, &pdata->lbl_motor_2, MOTOR_2_MODIFY_BTN_ID);
-    } else {
-        pdata->lbl_motor_2 = NULL;
-    }
-    if (pmodel->configuration.num_fans > 2) {
-        percentage_editor_create(flex, &pdata->lbl_motor_3, MOTOR_3_MODIFY_BTN_ID);
-    } else {
-        pdata->lbl_motor_3 = NULL;
-    }
+    editor = percentage_editor_create(lv_scr_act(), &pdata->lbl_standby_brightness, STANDBY_BTN_ID);
+    lv_obj_align(editor, LV_ALIGN_CENTER, 0, 80);
 
     update_page(pmodel, pdata);
 }
 
 
 static view_message_t page_event(model_t *pmodel, void *args, view_event_t event) {
-    struct page_data *pdata = args;
     view_message_t    msg   = VIEW_NULL_MESSAGE;
+    struct page_data *pdata = args;
 
     switch (event.code) {
         case VIEW_EVENT_CODE_TIMER:
@@ -88,18 +69,41 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
                             msg.vmsg.code = VIEW_PAGE_MESSAGE_CODE_BACK;
                             break;
 
-                        case MOTOR_1_MODIFY_BTN_ID:
-                            model_modify_immission_percentage(pmodel, 0, 5 * event.data.number);
+                        case STANDBY_BTN_ID:
+                            if (event.data.number > 0) {
+                                if (pmodel->configuration.standby_brightness + event.data.number * 5 <
+                                    APP_CONFIG_MAX_STANDBY_BRIGHTNESS) {
+                                    pmodel->configuration.standby_brightness += event.data.number * 5;
+                                } else {
+                                    pmodel->configuration.standby_brightness = APP_CONFIG_MAX_STANDBY_BRIGHTNESS;
+                                }
+                            } else {
+                                if (pmodel->configuration.standby_brightness + event.data.number * 5 >
+                                    APP_CONFIG_MIN_STANDBY_BRIGHTNESS) {
+                                    pmodel->configuration.standby_brightness += event.data.number * 5;
+                                } else {
+                                    pmodel->configuration.standby_brightness = APP_CONFIG_MIN_STANDBY_BRIGHTNESS;
+                                }
+                            }
                             update_page(pmodel, pdata);
                             break;
 
-                        case MOTOR_2_MODIFY_BTN_ID:
-                            model_modify_immission_percentage(pmodel, 1, 5 * event.data.number);
-                            update_page(pmodel, pdata);
-                            break;
-
-                        case MOTOR_3_MODIFY_BTN_ID:
-                            model_modify_immission_percentage(pmodel, 2, 5 * event.data.number);
+                        case NORMAL_BTN_ID:
+                            if (event.data.number > 0) {
+                                if (pmodel->configuration.normal_brightness + event.data.number * 5 <
+                                    APP_CONFIG_MAX_NORMAL_BRIGHTNESS) {
+                                    pmodel->configuration.normal_brightness += event.data.number * 5;
+                                } else {
+                                    pmodel->configuration.normal_brightness = APP_CONFIG_MAX_NORMAL_BRIGHTNESS;
+                                }
+                            } else {
+                                if (pmodel->configuration.normal_brightness + event.data.number * 5 >
+                                    APP_CONFIG_MIN_NORMAL_BRIGHTNESS) {
+                                    pmodel->configuration.normal_brightness += event.data.number * 5;
+                                } else {
+                                    pmodel->configuration.normal_brightness = APP_CONFIG_MIN_NORMAL_BRIGHTNESS;
+                                }
+                            }
                             update_page(pmodel, pdata);
                             break;
                     }
@@ -122,6 +126,7 @@ static view_message_t page_event(model_t *pmodel, void *args, view_event_t event
 
 static void close_page(void *args) {
     struct page_data *pdata = args;
+    (void)pdata;
     lv_obj_clean(lv_scr_act());
 }
 
@@ -134,16 +139,8 @@ static void destroy_page(void *args, void *extra) {
 
 
 static void update_page(model_t *pmodel, struct page_data *pdata) {
-    lv_label_set_text_fmt(pdata->lbl_motor_1, "%s:\n%i%%", model_get_fan_name(pmodel, 0),
-                          model_get_immission_percentage(pmodel, 0));
-    if (pdata->lbl_motor_2 != NULL) {
-        lv_label_set_text_fmt(pdata->lbl_motor_2, "%s:\n%i%%", model_get_fan_name(pmodel, 1),
-                              model_get_immission_percentage(pmodel, 1));
-    }
-    if (pdata->lbl_motor_3 != NULL) {
-        lv_label_set_text_fmt(pdata->lbl_motor_3, "%s:\n%i%%", model_get_fan_name(pmodel, 2),
-                              model_get_immission_percentage(pmodel, 2));
-    }
+    lv_label_set_text_fmt(pdata->lbl_normal_brightness, "Normale:\n%i%%", pmodel->configuration.normal_brightness);
+    lv_label_set_text_fmt(pdata->lbl_standby_brightness, "Standby:\n%i%%", pmodel->configuration.standby_brightness);
 }
 
 
@@ -180,7 +177,7 @@ static lv_obj_t *percentage_editor_create(lv_obj_t *parent, lv_obj_t **lbl, int 
 }
 
 
-const pman_page_t page_immission_speed = {
+const pman_page_t page_brightness = {
     .create        = create_page,
     .destroy       = destroy_page,
     .open          = open_page,

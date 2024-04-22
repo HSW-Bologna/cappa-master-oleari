@@ -27,7 +27,7 @@ typedef struct {
 
 
 void    modbus_init(void);
-void    modbus_set_speed(uint16_t fan, uint16_t speed);
+void    modbus_set_speed(uint16_t fan, uint16_t speed, uint8_t gas);
 void    modbus_set_light(uint16_t light, uint8_t value);
 uint8_t modbus_get_response(modbus_response_t *response);
 void    modbus_read_firmware_version(uint8_t address);
